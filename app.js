@@ -2,11 +2,11 @@
   "use strict";
   const inventory = Array.isArray(window.INVENTORY) ? window.INVENTORY : [];
   const config = window.SITE_CONFIG || {};
+  const callLines = Array.isArray(config.phones) && config.phones.length ? config.phones.join(" or ") : config.phone;
   const $ = (selector, root = document) => root.querySelector(selector);
   const $$ = (selector, root = document) => Array.from(root.querySelectorAll(selector));
   const money = new Intl.NumberFormat("en-US", { style: "currency", currency: "USD", maximumFractionDigits: 0 });
   let activeVehicle = null;
-  let gallery = null;
   let lastTrackedVehicleId = null;
   let lastDeliveryKey = "";
   let lastDeliveryAt = 0;
@@ -115,7 +115,7 @@
     $("#campaign-proof-price").textContent = `${money.format(vehicle.price)} asking price${vehicle.stock ? ` · Stock ${vehicle.stock}` : ""}`;
     $("#campaign-proof-mood").textContent = vehicle.mood;
     $("#campaign-proof-specs").innerHTML = [["Engine", vehicle.engine], ["Transmission", vehicle.transmission], ["Mileage", vehicle.mileage], ["Body", vehicle.body], ["Exterior", vehicle.exterior], ["Interior", vehicle.interior]].filter(([, value]) => value).map(([label, value]) => `<div><dt>${label}</dt><dd>${value}</dd></div>`).join("");
-    $("#campaign-proof-photos").innerHTML = vehicle.images.slice(0, 3).map((src, index) => `<img src="${src}" alt="${vehicle.title}, listing photo ${index + 1} of ${vehicle.images.length}" width="1200" height="800"${index ? ' loading="lazy"' : ""}>`).join("");
+    $("#campaign-proof-photos").innerHTML = vehicle.images.map((src, index) => `<img src="${src}" alt="${vehicle.title}, listing photo ${index + 1} of ${vehicle.images.length}" width="1200" height="800"${index ? ' loading="lazy"' : ""}>`).join("");
     $("#hero-headline").textContent = `${vehicle.title}. The exact classic from your ad.`;
     $("#hero-lede").textContent = `${money.format(vehicle.price)} asking price${vehicle.stock ? `, stock ${vehicle.stock}` : ""}. Stay with this exact car from the first photo to the request form.`;
     $("#inventory-heading-title").textContent = "Other current classics from Schindler Motors";
@@ -157,36 +157,25 @@
   }
 
   function card(vehicle) {
-    return `<article class="classic-card ${campaignVehicle && campaignVehicle.id === vehicle.id ? "campaign-match" : ""}"><a href="${vehicleHref(vehicle)}" data-vehicle="${vehicle.id}" aria-label="View ${vehicle.title}"><div class="classic-image"><img src="${vehicle.images[0]}" alt="${vehicle.title}" loading="lazy" width="1200" height="800"><span class="listing-status">${campaignVehicle && campaignVehicle.id === vehicle.id ? "FROM YOUR AD" : "CURRENT LISTING"}</span><span class="photo-count"><i data-lucide="images" aria-hidden="true"></i> ${vehicle.images.length} PHOTOS</span></div><div class="classic-copy"><p class="classic-era">${vehicle.year} · ${vehicle.body}</p><h3>${vehicle.title}</h3><p class="classic-price">ASKING ${money.format(vehicle.price)}</p><ul class="classic-specs"><li><strong>Stock:</strong> ${vehicle.stock || "Confirm with dealer"}</li><li><strong>Engine:</strong> ${vehicle.engine}</li><li><strong>Transmission:</strong> ${vehicle.transmission}</li><li><strong>Mileage:</strong> ${vehicle.mileage}</li></ul><span class="classic-more">See 10 photos of this car <i data-lucide="arrow-up-right" aria-hidden="true"></i></span></div></a></article>`;
+    return `<article class="classic-card ${campaignVehicle && campaignVehicle.id === vehicle.id ? "campaign-match" : ""}"><a href="${vehicleHref(vehicle)}" data-vehicle="${vehicle.id}" aria-label="View ${vehicle.title}"><div class="classic-image"><img src="${vehicle.images[0]}" alt="${vehicle.title}" loading="lazy" width="1200" height="800"><span class="listing-status">${campaignVehicle && campaignVehicle.id === vehicle.id ? "FROM YOUR AD" : "CURRENT LISTING"}</span><span class="photo-count"><i data-lucide="images" aria-hidden="true"></i> ${vehicle.images.length} PHOTOS</span></div><div class="classic-copy"><p class="classic-era">${vehicle.year} · ${vehicle.body}</p><h3>${vehicle.title}</h3><p class="classic-price">ASKING ${money.format(vehicle.price)}</p><ul class="classic-specs"><li><strong>Stock:</strong> ${vehicle.stock || "Confirm with dealer"}</li><li><strong>Engine:</strong> ${vehicle.engine}</li><li><strong>Transmission:</strong> ${vehicle.transmission}</li><li><strong>Mileage:</strong> ${vehicle.mileage}</li></ul><span class="classic-more">Open vehicle page · ${vehicle.images.length} photos <i data-lucide="arrow-up-right" aria-hidden="true"></i></span></div></a></article>`;
   }
 
   function render() {
     const rows = filteredRows();
     $("#inventory-list").innerHTML = rows.length ? rows.map(card).join("") : `<div class="empty-state"><h3>No exact match</h3><p>Reset the filters to see the full collection.</p></div>`;
     $("#inventory-count").textContent = `${rows.length} vehicle${rows.length === 1 ? "" : "s"}`;
-    $$('[data-vehicle]', $("#inventory-list")).forEach((link) => link.addEventListener("click", (event) => { if (event.ctrlKey || event.metaKey || event.shiftKey || event.altKey) return; event.preventDefault(); openVehicle(link.dataset.vehicle); }));
     if (window.lucide) window.lucide.createIcons();
   }
 
-  function openVehicle(id) {
-    activeVehicle = inventory.find((vehicle) => vehicle.id === id);
-    if (!activeVehicle) return;
-    setVehicleUrl(activeVehicle);
-    updateVehicleMetadata(activeVehicle);
-    $("#vehicle-select").value = activeVehicle.id;
-    $("#dialog-stock").textContent = activeVehicle.stock ? `STOCK ${activeVehicle.stock}` : "CURRENT COLLECTION";
-    $("#dialog-title").textContent = activeVehicle.title;
-    $("#dialog-price").textContent = `ASKING ${money.format(activeVehicle.price)}`;
-    $("#dialog-mood").textContent = activeVehicle.mood;
-    $("#dialog-specs").innerHTML = [["Engine", activeVehicle.engine], ["Transmission", activeVehicle.transmission], ["Mileage", activeVehicle.mileage], ["Body", activeVehicle.body], ["Exterior", activeVehicle.exterior], ["Interior", activeVehicle.interior]].filter(([, value]) => value).map(([label, value]) => `<div><dt>${label}</dt><dd>${value}</dd></div>`).join("");
-    $("#dialog-gallery").innerHTML = activeVehicle.images.map((image, index) => `<div class="swiper-slide"><img src="${image}" alt="${activeVehicle.title}, view ${index + 1} of ${activeVehicle.images.length}" width="1200" height="800"></div>`).join("");
-    $("#vehicle-dialog").showModal();
-    if (gallery) gallery.destroy(true, true);
-    if (window.Swiper) gallery = new window.Swiper(".vehicle-swiper", { loop: activeVehicle.images.length > 1, keyboard: { enabled: true }, navigation: { nextEl: ".swiper-button-next", prevEl: ".swiper-button-prev" }, pagination: { el: ".swiper-pagination", clickable: true } });
-    trackVehicleView(activeVehicle);
+  function openVehiclePage(id) {
+    const vehicle = inventory.find((row) => row.id === id);
+    if (!vehicle) return;
+    if (pathVehicleMatch && campaignVehicle && campaignVehicle.id === vehicle.id) {
+      $("#campaign-proof").scrollIntoView({ behavior: "smooth", block: "start" });
+      return;
+    }
+    location.assign(vehicleHref(vehicle));
   }
-
-  function closeDialog() { $("#vehicle-dialog").close(); }
 
   function showStep(number) {
     $$(".form-step").forEach((step) => step.classList.toggle("active", Number(step.dataset.step) === number));
@@ -209,7 +198,6 @@
     $("#request-title").textContent = `Ask about the ${vehicle.title}.`;
     $("#request-context").textContent = `${money.format(vehicle.price)} asking price${vehicle.stock ? ` · Stock ${vehicle.stock}` : ""}. Every answer will stay tied to this exact vehicle.`;
     if (type) $("select[name='requestType']").value = type;
-    if ($("#vehicle-dialog").open) closeDialog();
     showStep(1);
     $("#request").scrollIntoView({ behavior: "smooth", block: "start" });
     setTimeout(() => $("#vehicle-select").focus(), 450);
@@ -227,6 +215,31 @@
   }
   function closeChat() { $("#chat-panel").classList.remove("open"); $(".chat-scrim").classList.remove("open"); $("#chat-panel").setAttribute("aria-hidden", "true"); $("#chat-panel").setAttribute("inert", ""); }
 
+  function newLeadId() {
+    return window.crypto && typeof window.crypto.randomUUID === "function"
+      ? window.crypto.randomUUID()
+      : `lead-${Date.now()}-${Math.random().toString(16).slice(2)}`;
+  }
+
+  async function postLeadToRouter(payload) {
+    const requestPayload = { ...payload, leadSource: "LANDING", leadId: payload.leadId || newLeadId(), receivedAt: new Date().toISOString() };
+    const options = { method: "POST", headers: { "Content-Type": "text/plain;charset=UTF-8" }, body: JSON.stringify(requestPayload), redirect: "follow" };
+    try {
+      const response = await fetch(config.leadEndpoint, options);
+      const body = await response.json().catch(() => ({}));
+      if (!response.ok || body.ok === false) {
+        const error = new Error(body.message || "The request could not be sent.");
+        error.routerRejected = true;
+        throw error;
+      }
+      return body;
+    } catch (error) {
+      if (error.routerRejected) throw error;
+      await fetch(config.leadEndpoint, { ...options, mode: "no-cors" });
+      return { ok: true, deliveryConfirmedByBrowser: false };
+    }
+  }
+
   async function deliver(payload, status, successText) {
     status.className = "form-status";
     const deliveryKey = JSON.stringify([payload.type, payload.phone, payload.email, payload.vehicleSlug, payload.requestType, payload.message]);
@@ -242,18 +255,16 @@
     if (preview || !config.leadEndpoint) {
       localStorage.setItem("schindler_pending_lead", JSON.stringify({ ...payload, savedAt: new Date().toISOString() }));
       status.classList.add(preview ? "success" : "error");
-      status.textContent = preview ? "Preview mode: form validated and saved in this browser. Connect the lead router before traffic." : `Online delivery is not connected yet. Please call ${config.phone}.`;
+      status.textContent = preview ? "Preview mode: form validated and saved in this browser. Connect the lead router before traffic." : `Online delivery is not connected yet. Please call ${callLines}.`;
       return false;
     }
     try {
-      const response = await fetch(config.leadEndpoint, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(payload) });
-      const body = await response.json().catch(() => ({}));
-      if (!response.ok) throw new Error(body.message || "The request could not be sent.");
+      const body = await postLeadToRouter(payload);
       status.classList.add("success"); status.textContent = body.message || successText;
       if (window.fbq) window.fbq("track", "Lead");
       return true;
     } catch (error) {
-      status.classList.add("error"); status.textContent = `${error.message} Please call ${config.phone}.`; return false;
+      status.classList.add("error"); status.textContent = `${error.message} Please call ${callLines}.`; return false;
     }
   }
 
@@ -287,19 +298,15 @@
 
   function init() {
     getAttribution(); setupSectionLinks(); loadMetaPixel(); loadLiveChat(); populateSelect(); applyCampaignVehicle(); render();
-    $$('[data-vehicle]').filter((button) => !button.closest("#inventory-list")).forEach((button) => button.addEventListener("click", () => openVehicle(button.dataset.vehicle)));
+    $$('[data-vehicle]').filter((button) => !button.closest("#inventory-list")).forEach((button) => button.addEventListener("click", () => openVehiclePage(button.dataset.vehicle)));
     $("#budget-filter").addEventListener("change", render);
     $("#reset-filter").addEventListener("click", () => { $("#budget-filter").value = "all"; render(); });
     $$('[data-hero-request]').forEach((button) => button.addEventListener("click", () => startRequest((campaignVehicle || inventory.find((row) => row.id === "1955-cadillac-deville-convertible") || inventory[0]).id, button.dataset.heroRequest)));
     $$('[data-campaign-request]').forEach((button) => button.addEventListener("click", () => startRequest(campaignVehicle && campaignVehicle.id, button.dataset.campaignRequest)));
     const campaignGallery = $('[data-campaign-gallery]');
-    if (campaignGallery && campaignVehicle) campaignGallery.addEventListener("click", () => openVehicle(campaignVehicle.id));
+    if (campaignGallery && campaignVehicle) campaignGallery.addEventListener("click", () => $("#campaign-proof-photos").scrollIntoView({ behavior: "smooth", block: "start" }));
     $$('[data-next]').forEach((button) => button.addEventListener("click", () => { const current = Number(button.closest(".form-step").dataset.step); if (validateStep(current)) showStep(Number(button.dataset.next)); }));
     $$('[data-back]').forEach((button) => button.addEventListener("click", () => showStep(Number(button.dataset.back))));
-    $("#dialog-request").addEventListener("click", () => startRequest(undefined, "Availability and details"));
-    $("#dialog-video").addEventListener("click", () => startRequest(undefined, "Personal walk-around video"));
-    $$('[data-close-dialog]').forEach((button) => button.addEventListener("click", closeDialog));
-    $("#vehicle-dialog").addEventListener("click", (event) => { if (event.target === event.currentTarget) closeDialog(); });
     $$('[data-chat-open]').forEach((button) => button.addEventListener("click", openChat));
     $$('[data-chat-close]').forEach((button) => button.addEventListener("click", closeChat));
     $("#request-form").addEventListener("submit", submitRequest);

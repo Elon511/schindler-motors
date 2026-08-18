@@ -17,7 +17,6 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,500;0,600;1,500&family=Oswald:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css">
   <link rel="stylesheet" href="styles.css">
 </head>
 <body>
@@ -27,7 +26,10 @@
     <div class="header-shell">
       <a class="logo" href="#top" aria-label="Schindler Motors home"><span class="logo-wing"></span><strong>Schindler</strong><small>MOTORS · PORT MATILDA, PA</small><span class="logo-wing"></span></a>
       <nav aria-label="Main navigation"><a href="#memory-match">Featured listings</a><a href="#inventory">Cars for sale</a><a href="#look-closer">10-photo galleries</a><a href="#visit">Visit</a></nav>
-      <a class="header-phone" href="tel:+18146374536"><i data-lucide="phone" aria-hidden="true"></i>814-637-4536</a>
+      <div class="header-phones" aria-label="Schindler Motors sales phone lines">
+        <a class="header-phone" href="tel:+18149333155" aria-label="Call Schindler Motors at 814-933-3155"><i data-lucide="phone" aria-hidden="true"></i><span>(814) 933-3155</span></a>
+        <a class="header-phone" href="tel:+18144009102" aria-label="Call Schindler Motors at 814-400-9102"><i data-lucide="phone" aria-hidden="true"></i><span>(814) 400-9102</span></a>
+      </div>
     </div>
   </header>
 
@@ -107,7 +109,7 @@
 
     <section class="request-section" id="request">
       <div class="request-shell">
-        <div class="request-copy reveal"><p class="eyebrow">TELL US WHICH ONE</p><h2 id="request-title">Ask about one exact vehicle.</h2><p id="request-context">The form takes three short steps. Your request stays tied to the listing, stock number, and asking price you select.</p><div class="request-phone"><span>Or call directly</span><a href="tel:+18146374536">814-637-4536</a></div></div>
+        <div class="request-copy reveal"><p class="eyebrow">TELL US WHICH ONE</p><h2 id="request-title">Ask about one exact vehicle.</h2><p id="request-context">The form takes three short steps. Your request stays tied to the listing, stock number, and asking price you select.</p><div class="request-phone"><span>Or call either sales line</span><div class="request-phone-links"><a href="tel:+18149333155">(814) 933-3155</a><a href="tel:+18144009102">(814) 400-9102</a></div></div></div>
         <form class="request-form reveal" id="request-form" novalidate>
           <div class="form-progress" role="group" aria-label="Form progress"><span class="active" data-progress="1">1. Car</span><span data-progress="2">2. Contact</span><span data-progress="3">3. Purchase</span></div>
           <section class="form-step active" data-step="1">
@@ -139,30 +141,21 @@
     <section class="visit-section" id="visit">
       <div class="wide-shell visit-grid">
         <div class="visit-map reveal"><a class="vintage-map" href="https://www.google.com/maps/search/?api=1&amp;query=102%20E%20Plank%20Rd%2C%20Port%20Matilda%2C%20PA%2016870" target="_blank" rel="noreferrer" aria-label="Open directions to Schindler Motors in Google Maps"><span class="route-shield">US<br>220</span><span class="vintage-pin"><i data-lucide="map-pin" aria-hidden="true"></i><strong>SCHINDLER MOTORS</strong><small>102 E Plank Rd · Port Matilda</small></span><span class="start-drive">START THE DRIVE <i data-lucide="arrow-up-right" aria-hidden="true"></i></span></a></div>
-        <div class="visit-copy reveal"><p class="eyebrow dark">SCHINDLER MOTORS</p><h2>See the car in Port Matilda.</h2><address>102 E Plank Rd<br>Port Matilda, PA 16870</address><p>Call to confirm the vehicle and arrange your visit before you drive in.</p><p>Mon–Fri 9:00 AM–6:00 PM · Sat 10:00 AM–1:00 PM · Sun by appointment</p><div class="visit-actions"><a class="red-button" href="https://www.google.com/maps/search/?api=1&amp;query=102%20E%20Plank%20Rd%2C%20Port%20Matilda%2C%20PA%2016870" target="_blank" rel="noreferrer">Open Google Maps</a></div></div>
+        <div class="visit-copy reveal"><p class="eyebrow dark">SCHINDLER MOTORS</p><h2>See the car in Port Matilda.</h2><address>102 E Plank Rd<br>Port Matilda, PA 16870</address><p>Call to confirm the vehicle and arrange your visit before you drive in.</p><p>Mon–Fri 9:00 AM–6:00 PM · Sat 10:00 AM–1:00 PM · Sun by appointment</p><div class="visit-actions"><a class="red-button" href="https://www.google.com/maps/search/?api=1&amp;query=102%20E%20Plank%20Rd%2C%20Port%20Matilda%2C%20PA%2016870" target="_blank" rel="noreferrer">Open Google Maps</a><a class="cream-button" href="tel:+18149333155">Call (814) 933-3155</a><a class="cream-button" href="tel:+18144009102">Call (814) 400-9102</a></div></div>
       </div>
     </section>
   </main>
 
-  <footer><div class="wide-shell footer-grid"><div><strong>Schindler Motors</strong><span>Port Matilda, Pennsylvania</span></div><p>Published asking prices, details, and availability may change. Confirm all material facts directly before purchase.</p><div><a href="tel:+18146374536">814-637-4536</a><a href="privacy/">Privacy</a><a href="terms/">Terms</a></div></div></footer>
-
-  <dialog class="vehicle-dialog" id="vehicle-dialog" aria-labelledby="dialog-title">
-    <button class="dialog-close" type="button" data-close-dialog aria-label="Close"><i data-lucide="x" aria-hidden="true"></i></button>
-    <div class="dialog-grid">
-      <div class="swiper vehicle-swiper"><div class="swiper-wrapper" id="dialog-gallery"></div><button class="swiper-button-prev" type="button" aria-label="Previous photo"></button><button class="swiper-button-next" type="button" aria-label="Next photo"></button><div class="swiper-pagination"></div></div>
-      <div class="dialog-copy"><p class="eyebrow dark" id="dialog-stock"></p><h2 id="dialog-title">Vehicle details</h2><p class="dialog-price" id="dialog-price"></p><p id="dialog-mood"></p><dl id="dialog-specs"></dl><p class="video-note"><i data-lucide="video" aria-hidden="true"></i>Personal walk-around video available on request.</p><div class="dialog-actions"><button class="red-button full" id="dialog-request" type="button">Check Availability</button><button class="cream-button full" id="dialog-video" type="button">Request Walk-Around Video</button></div><small>The published asking price is shown above. Availability and material vehicle facts may change.</small></div>
-    </div>
-  </dialog>
+  <footer><div class="wide-shell footer-grid"><div><strong>Schindler Motors</strong><span>Port Matilda, Pennsylvania</span></div><p>Published asking prices, details, and availability may change. Confirm all material facts directly before purchase.</p><div><a href="tel:+18149333155">(814) 933-3155</a><a href="tel:+18144009102">(814) 400-9102</a><a href="privacy/">Privacy</a><a href="terms/">Terms</a></div></div></footer>
 
   <aside class="chat-panel" id="chat-panel" aria-hidden="true" inert><div class="chat-head"><div><strong>Quick question?</strong><span>Choose the exact car and leave the best number to reach you.</span></div><button type="button" data-chat-close aria-label="Close chat"><i data-lucide="x" aria-hidden="true"></i></button></div><form id="chat-form"><label>Exact vehicle<select name="vehicleSlug" id="chat-vehicle-select" required><option value="">Choose the exact vehicle</option></select></label><label>Question<textarea name="message" rows="3" required placeholder="Is this exact vehicle still available?"></textarea></label><label>Name<input name="name" type="text" required></label><label>Phone<input name="phone" type="tel" required placeholder="(555) 555-5555"></label><label class="consent"><input name="contactConsent" type="checkbox" required><span>I agree to be contacted about this request.</span></label><p class="privacy-note">How we use your information: <a href="privacy/">Privacy Policy</a>.</p><button class="red-button full" type="submit">Ask about this vehicle</button><p class="form-status" role="status" aria-live="polite"></p></form></aside><div class="chat-scrim" data-chat-close></div>
 
   <nav class="floating-tools" aria-label="Quick contact"><button type="button" data-chat-open><i data-lucide="messages-square" aria-hidden="true"></i><span>Live chat</span></button></nav>
-  <nav class="mobile-bar" aria-label="Mobile quick contact"><a href="tel:+18146374536">Call</a><button type="button" data-chat-open>Live chat</button></nav>
+  <nav class="mobile-bar" aria-label="Mobile quick contact"><a href="tel:+18149333155" aria-label="Call 814-933-3155"><span>Call</span><small>933-3155</small></a><a href="tel:+18144009102" aria-label="Call 814-400-9102"><span>Call</span><small>400-9102</small></a><button type="button" data-chat-open>Live chat</button></nav>
 
   <script src="data/inventory.js"></script>
   <script src="config.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/lucide@0.468.0/dist/umd/lucide.min.js" defer></script>
-  <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js" defer></script>
   <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js" defer></script>
   <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/ScrollTrigger.min.js" defer></script>
   <script src="https://cdn.jsdelivr.net/npm/imask@7.6.1/dist/imask.min.js" defer></script>
