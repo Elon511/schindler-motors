@@ -14,12 +14,16 @@
   const requestedVehicleId = (pathVehicleMatch && decodeURIComponent(pathVehicleMatch[1])) || new URLSearchParams(location.search).get("vehicle");
   const campaignVehicle = inventory.find((vehicle) => vehicle.id === requestedVehicleId) || null;
 
+  function isLocalPreview() {
+    return location.protocol === "file:" || ["localhost", "127.0.0.1"].includes(location.hostname);
+  }
+
   function isPreview() {
-    return Boolean(config.demoMode) || location.protocol === "file:" || ["localhost", "127.0.0.1"].includes(location.hostname);
+    return Boolean(config.demoMode) || isLocalPreview();
   }
 
   function loadMetaPixel() {
-    if (isPreview() || !config.metaPixelId || window.fbq) return;
+    if (isLocalPreview() || !config.metaPixelId || window.fbq) return;
     (function (f, b, e, v, n, t, s) {
       if (f.fbq) return;
       n = f.fbq = function () { n.callMethod ? n.callMethod.apply(n, arguments) : n.queue.push(arguments); };
@@ -157,7 +161,7 @@
   }
 
   function card(vehicle) {
-    return `<article class="classic-card ${campaignVehicle && campaignVehicle.id === vehicle.id ? "campaign-match" : ""}"><a href="${vehicleHref(vehicle)}" data-vehicle="${vehicle.id}" aria-label="View ${vehicle.title}"><div class="classic-image"><img src="${vehicle.images[0]}" alt="${vehicle.title}" loading="lazy" width="1200" height="800"><span class="listing-status">${campaignVehicle && campaignVehicle.id === vehicle.id ? "FROM YOUR AD" : "CURRENT LISTING"}</span><span class="photo-count"><i data-lucide="images" aria-hidden="true"></i> ${vehicle.images.length} PHOTOS</span></div><div class="classic-copy"><p class="classic-era">${vehicle.year} · ${vehicle.body}</p><h3>${vehicle.title}</h3><p class="classic-price">ASKING ${money.format(vehicle.price)}</p><ul class="classic-specs"><li><strong>Stock:</strong> ${vehicle.stock || "Confirm with dealer"}</li><li><strong>Engine:</strong> ${vehicle.engine}</li><li><strong>Transmission:</strong> ${vehicle.transmission}</li><li><strong>Mileage:</strong> ${vehicle.mileage}</li></ul><span class="classic-more">Open vehicle page · ${vehicle.images.length} photos <i data-lucide="arrow-up-right" aria-hidden="true"></i></span></div></a></article>`;
+    return `<article class="classic-card ${campaignVehicle && campaignVehicle.id === vehicle.id ? "campaign-match" : ""}"><a href="${vehicleHref(vehicle)}" data-vehicle="${vehicle.id}" aria-label="View ${vehicle.title}"><div class="classic-image"><img src="${vehicle.images[0]}" alt="${vehicle.title}" width="1200" height="800"><span class="listing-status">${campaignVehicle && campaignVehicle.id === vehicle.id ? "FROM YOUR AD" : "CURRENT LISTING"}</span><span class="photo-count"><i data-lucide="images" aria-hidden="true"></i> ${vehicle.images.length} PHOTOS</span></div><div class="classic-copy"><p class="classic-era">${vehicle.year} · ${vehicle.body}</p><h3>${vehicle.title}</h3><p class="classic-price">ASKING ${money.format(vehicle.price)}</p><ul class="classic-specs"><li><strong>Stock:</strong> ${vehicle.stock || "Confirm with dealer"}</li><li><strong>Engine:</strong> ${vehicle.engine}</li><li><strong>Transmission:</strong> ${vehicle.transmission}</li><li><strong>Mileage:</strong> ${vehicle.mileage}</li></ul><span class="classic-more">Open vehicle page · ${vehicle.images.length} photos <i data-lucide="arrow-up-right" aria-hidden="true"></i></span></div></a></article>`;
   }
 
   function render() {
@@ -221,6 +225,20 @@
       : `lead-${Date.now()}-${Math.random().toString(16).slice(2)}`;
   }
 
+  function trackLead(payload) {
+    if (!window.fbq) return;
+    const vehicle = inventory.find((row) => row.id === payload.vehicleSlug);
+    const parameters = {
+      content_name: vehicle ? vehicle.title : "Schindler Motors vehicle inquiry",
+      content_ids: vehicle ? [vehicle.id] : [],
+      content_type: "vehicle",
+      lead_source: payload.type || "vehicle-request",
+      currency: "USD"
+    };
+    if (vehicle && Number.isFinite(vehicle.price)) parameters.value = vehicle.price;
+    window.fbq("track", "Lead", parameters, { eventID: payload.leadId });
+  }
+
   async function postLeadToRouter(payload) {
     const requestPayload = { ...payload, leadSource: "LANDING", leadId: payload.leadId || newLeadId(), receivedAt: new Date().toISOString() };
     const options = { method: "POST", headers: { "Content-Type": "text/plain;charset=UTF-8" }, body: JSON.stringify(requestPayload), redirect: "follow" };
@@ -261,7 +279,7 @@
     try {
       const body = await postLeadToRouter(payload);
       status.classList.add("success"); status.textContent = body.message || successText;
-      if (window.fbq) window.fbq("track", "Lead");
+      trackLead(payload);
       return true;
     } catch (error) {
       status.classList.add("error"); status.textContent = `${error.message} Please call ${callLines}.`; return false;
@@ -274,7 +292,7 @@
     const form = event.currentTarget;
     const data = new FormData(form);
     const vehicle = inventory.find((row) => row.id === data.get("vehicleSlug"));
-    const payload = { type: "vehicle-request", dealerId: config.dealerId, dealerName: config.brand, landingId: config.landingId, vehicleSlug: data.get("vehicleSlug"), vehicle: vehicle ? vehicle.title : "", vehicleStock: vehicle ? vehicle.stock : "", vehiclePrice: vehicle ? vehicle.price : null, requestType: data.get("requestType"), firstName: data.get("firstName"), lastName: data.get("lastName"), phone: data.get("phone"), email: data.get("email"), purchaseMethod: data.get("purchaseMethod"), deliveryNeeded: Boolean(data.get("deliveryNeeded")), contactConsent: Boolean(data.get("contactConsent")), pageUrl: location.href, attribution: getAttribution() };
+    const payload = { type: "vehicle-request", leadId: newLeadId(), dealerId: config.dealerId, dealerName: config.brand, landingId: config.landingId, vehicleSlug: data.get("vehicleSlug"), vehicle: vehicle ? vehicle.title : "", vehicleStock: vehicle ? vehicle.stock : "", vehiclePrice: vehicle ? vehicle.price : null, requestType: data.get("requestType"), firstName: data.get("firstName"), lastName: data.get("lastName"), phone: data.get("phone"), email: data.get("email"), purchaseMethod: data.get("purchaseMethod"), deliveryNeeded: Boolean(data.get("deliveryNeeded")), contactConsent: Boolean(data.get("contactConsent")), pageUrl: location.href, attribution: getAttribution() };
     const sent = await deliver(payload, $(".form-status", form), "Request received. Schindler Motors will use these details to follow up.");
     if (sent) { form.reset(); showStep(1); }
   }
@@ -285,7 +303,7 @@
     if (!form.reportValidity()) return;
     const data = new FormData(form);
     const vehicle = inventory.find((row) => row.id === data.get("vehicleSlug"));
-    const payload = { type: "chat-question", dealerId: config.dealerId, dealerName: config.brand, landingId: config.landingId, vehicleSlug: data.get("vehicleSlug"), vehicle: vehicle ? vehicle.title : "", vehicleStock: vehicle ? vehicle.stock : "", name: data.get("name"), phone: data.get("phone"), message: data.get("message"), contactConsent: Boolean(data.get("contactConsent")), pageUrl: location.href, attribution: getAttribution() };
+    const payload = { type: "chat-question", leadId: newLeadId(), dealerId: config.dealerId, dealerName: config.brand, landingId: config.landingId, vehicleSlug: data.get("vehicleSlug"), vehicle: vehicle ? vehicle.title : "", vehicleStock: vehicle ? vehicle.stock : "", name: data.get("name"), phone: data.get("phone"), message: data.get("message"), contactConsent: Boolean(data.get("contactConsent")), pageUrl: location.href, attribution: getAttribution() };
     const sent = await deliver(payload, $(".form-status", form), "Question received. The team will follow up using your number.");
     if (sent) form.reset();
   }
