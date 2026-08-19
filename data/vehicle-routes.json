@@ -3,14 +3,14 @@
     "id": "1954-chevrolet-3100",
     "title": "1954 Chevrolet 3100",
     "stock": "1837-FL",
-    "price": 34000,
+    "price": 21999,
     "path": "/cars/1954-chevrolet-3100/"
   },
   {
     "id": "1955-cadillac-deville-convertible",
     "title": "1955 Cadillac Deville Convertible",
     "stock": "1785-FL",
-    "price": 53000,
+    "price": 24499,
     "path": "/cars/1955-cadillac-deville-convertible/"
   },
   {
@@ -31,14 +31,14 @@
     "id": "1955-chevrolet-3100",
     "title": "1955 Chevrolet 3100",
     "stock": "1884-FL",
-    "price": 42000,
+    "price": 20499,
     "path": "/cars/1955-chevrolet-3100/"
   },
   {
     "id": "1955-chevrolet-bel-air",
     "title": "1955 Chevrolet Bel Air",
     "stock": "2140-FL",
-    "price": 42950,
+    "price": 19699,
     "path": "/cars/1955-chevrolet-bel-air/"
   },
   {
@@ -87,7 +87,7 @@
     "id": "1957-pontiac-starchief",
     "title": "1957 Pontiac Starchief",
     "stock": "1781-FL",
-    "price": 48000,
+    "price": 26500,
     "path": "/cars/1957-pontiac-starchief/"
   },
   {
@@ -101,7 +101,7 @@
     "id": "1960-chevrolet-impala",
     "title": "1960 Chevrolet Impala",
     "stock": "1984-FL",
-    "price": 53950,
+    "price": 27999,
     "path": "/cars/1960-chevrolet-impala/"
   },
   {
