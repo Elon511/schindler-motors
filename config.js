@@ -9,6 +9,6 @@ window.SITE_CONFIG = {
   mapsUrl: "https://maps.app.goo.gl/K3dz9h5WHRDnhiYF8",
   leadEndpoint: "/api/leads",
   liveChatLicense: "",
-  metaPixelId: "4413301488886093",
+  metaPixelIds: ["1334500711837422", "1742493703749346", "1412287164299908"],
   demoMode: true
 };
