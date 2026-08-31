@@ -311,7 +311,7 @@
     const vehicle = inventory.find((row) => row.id === data.get("vehicleSlug"));
     const payload = { type: "vehicle-request", leadId: newLeadId(), dealerId: config.dealerId, dealerName: config.brand, landingId: config.landingId, vehicleSlug: data.get("vehicleSlug"), vehicle: vehicle ? vehicle.title : "", vehicleStock: vehicle ? vehicle.stock : "", vehiclePrice: vehicle ? vehicle.price : null, requestType: data.get("requestType"), firstName: data.get("firstName"), lastName: data.get("lastName"), phone: data.get("phone"), email: data.get("email"), purchaseMethod: data.get("purchaseMethod"), deliveryNeeded: Boolean(data.get("deliveryNeeded")), contactConsent: Boolean(data.get("contactConsent")), pageUrl: location.href, attribution: getAttribution() };
     const sent = await deliver(payload, $(".form-status", form), "Request received. Schindler Motors will use these details to follow up.");
-    if (sent) { form.reset(); showStep(1); }
+    if (sent) form.reset();
   }
 
   async function submitChat(event) {
