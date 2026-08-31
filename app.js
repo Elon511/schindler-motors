@@ -153,6 +153,28 @@
     });
   }
 
+  function syncFeaturedContent() {
+    const defaultVehicle = inventory.find((vehicle) => vehicle.id === "1955-cadillac-deville-convertible") || inventory[0];
+    if (defaultVehicle) {
+      const heroPhoto = $("#hero-vehicle-image");
+      heroPhoto.style.backgroundImage = `url("${defaultVehicle.images[0]}")`;
+      heroPhoto.setAttribute("aria-label", `${defaultVehicle.title}, current listing`);
+      $("#hero-vehicle-title").textContent = defaultVehicle.title;
+      $("#hero-vehicle-meta").textContent = `${money.format(defaultVehicle.price)}${defaultVehicle.stock ? ` · STOCK ${defaultVehicle.stock}` : ""}`;
+      $("#hero-mobile-title").textContent = defaultVehicle.title;
+      $("#hero-mobile-meta").textContent = `${money.format(defaultVehicle.price)}${defaultVehicle.stock ? ` · STOCK ${defaultVehicle.stock}` : ""}`;
+      const galleryButton = $(".hero-gallery-button");
+      if (galleryButton) galleryButton.dataset.vehicle = defaultVehicle.id;
+    }
+    $$(".match-options [data-vehicle]").forEach((button) => {
+      const vehicle = inventory.find((row) => row.id === button.dataset.vehicle);
+      if (!vehicle) return;
+      $("span", button).textContent = vehicle.stock ? `STOCK ${vehicle.stock}` : "CURRENT LISTING";
+      $("strong", button).textContent = vehicle.title;
+      $("small", button).textContent = `Asking ${money.format(vehicle.price)} · See ${vehicle.images.length} photos`;
+    });
+  }
+
   function filteredRows() {
     const max = $("#budget-filter").value;
     const rows = inventory.filter((vehicle) => max === "all" || vehicle.price <= Number(max));
@@ -315,7 +337,7 @@
   }
 
   function init() {
-    getAttribution(); setupSectionLinks(); loadMetaPixel(); loadLiveChat(); populateSelect(); applyCampaignVehicle(); render();
+    getAttribution(); setupSectionLinks(); loadMetaPixel(); loadLiveChat(); populateSelect(); syncFeaturedContent(); applyCampaignVehicle(); render();
     $$('[data-vehicle]').filter((button) => !button.closest("#inventory-list")).forEach((button) => button.addEventListener("click", () => openVehiclePage(button.dataset.vehicle)));
     $("#budget-filter").addEventListener("change", render);
     $("#reset-filter").addEventListener("click", () => { $("#budget-filter").value = "all"; render(); });

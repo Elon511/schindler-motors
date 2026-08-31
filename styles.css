@@ -248,19 +248,19 @@ footer { padding: 34px 0; color: #bdbab4; background: #111; font-size: 14px; }
   .logo { grid-template-columns: 25px auto 25px; }
   .logo strong { font-size: 27px; }
   .header-phones { display: none; }
-  .hero { min-height: 980px; }
-  .hero-photo { background-color: #111; background-position: center top; background-size: auto clamp(280px, 70vw, 430px); background-repeat: no-repeat; }
-  .hero-overlay { background: linear-gradient(180deg, rgba(0,0,0,.08) 0, rgba(0,0,0,.18) 220px, rgba(17,17,17,.96) 330px, #111 390px); }
+  .hero { min-height: 900px; }
+  .hero-photo { background-color: #111; background-position: center top; background-size: auto clamp(270px, 68vw, 410px); background-repeat: no-repeat; }
+  .hero-overlay { background: linear-gradient(180deg, rgba(0,0,0,.08) 0, rgba(0,0,0,.18) 205px, rgba(17,17,17,.96) 305px, #111 365px); }
   .hero-frame { inset: 12px; }
-  .hero-content { min-height: 980px; justify-content: flex-start; padding-top: 315px; padding-bottom: 100px; }
-  h1 { font-size: clamp(64px, 19vw, 90px); }
+  .hero-content { min-height: 900px; justify-content: flex-start; padding-top: 280px; padding-bottom: 76px; }
+  h1 { font-size: clamp(56px, 15vw, 66px); }
   h2 { font-size: 51px; }
   .hero-content > p:not(.eyebrow) { font-size: 18px; }
-  .hero-mobile-listing { order: -1; display: grid; gap: 5px; margin: 0 0 18px; padding: 13px 14px; color: #171716; background: var(--cream); border-left: 4px solid var(--red); }
+  .hero-mobile-listing { order: -1; display: grid; gap: 5px; margin: 0 0 12px; padding: 11px 13px; color: #171716; background: var(--cream); border-left: 4px solid var(--red); }
   .hero-mobile-listing span { font: 500 20px/1.1 var(--display); text-transform: uppercase; }
   .hero-mobile-listing strong { color: var(--red); font: 600 13px/1.2 var(--display); letter-spacing: .04em; }
-  .hero-actions { align-items: stretch; flex-direction: column; }
-  .hero-facts { gap: 22px; }
+  .hero-actions { align-items: stretch; flex-direction: column; gap: 9px; }
+  .hero-facts { gap: 17px; }
   .hero-facts strong { font-size: 25px; }
   .hero-caption { display: none; }
   .memory-match, .inventory-section, .steps-section, .request-section, .visit-section { padding: 75px 0; }
