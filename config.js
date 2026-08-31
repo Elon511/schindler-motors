@@ -7,8 +7,8 @@ window.SITE_CONFIG = {
   email: "Sales@schindlermotors.com",
   address: "102 E Plank Rd, Port Matilda, PA 16870",
   mapsUrl: "https://maps.app.goo.gl/K3dz9h5WHRDnhiYF8",
-  leadEndpoint: "/api/leads",
+  leadEndpoint: "https://classic-car-lead-gateway.elontraffer.chatgpt.site/api/leads/schindler",
   liveChatLicense: "",
   metaPixelIds: ["1334500711837422", "1742493703749346", "1412287164299908"],
-  demoMode: true
+  demoMode: false
 };

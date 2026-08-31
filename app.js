@@ -267,20 +267,12 @@
   async function postLeadToRouter(payload) {
     const requestPayload = { ...payload, leadSource: "LANDING", leadId: payload.leadId || newLeadId(), receivedAt: new Date().toISOString() };
     const options = { method: "POST", headers: { "Content-Type": "text/plain;charset=UTF-8" }, body: JSON.stringify(requestPayload), redirect: "follow" };
-    try {
-      const response = await fetch(config.leadEndpoint, options);
-      const body = await response.json().catch(() => ({}));
-      if (!response.ok || body.ok === false) {
-        const error = new Error(body.message || "The request could not be sent.");
-        error.routerRejected = true;
-        throw error;
-      }
-      return body;
-    } catch (error) {
-      if (error.routerRejected) throw error;
-      await fetch(config.leadEndpoint, { ...options, mode: "no-cors" });
-      return { ok: true, deliveryConfirmedByBrowser: false };
+    const response = await fetch(config.leadEndpoint, options);
+    const body = await response.json().catch(() => ({}));
+    if (!response.ok || body.ok === false) {
+      throw new Error(body.message || "We could not confirm delivery of your request.");
     }
+    return body;
   }
 
   async function deliver(payload, status, successText) {
