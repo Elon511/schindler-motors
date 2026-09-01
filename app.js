@@ -22,6 +22,48 @@
     return Boolean(config.demoMode) || isLocalPreview();
   }
 
+  function validatePhoneInput(input, report = false) {
+    if (!input) return false;
+    const digits = input.value.replace(/\D/g, "");
+    input.setCustomValidity(digits.length >= 7 ? "" : "Enter at least 7 digits. You may use +, spaces, parentheses, or dashes.");
+    if (report && !input.checkValidity()) input.reportValidity();
+    return input.checkValidity();
+  }
+
+  function setupFlexiblePhoneInputs() {
+    $$("input[type='tel']").forEach((input, index) => {
+      input.inputMode = "tel";
+      input.autocomplete = "tel";
+      input.maxLength = 40;
+      input.placeholder = "+1 (555) 555-5555";
+      const hintId = `phone-format-hint-${index + 1}`;
+      input.setAttribute("aria-describedby", hintId);
+      input.addEventListener("input", () => validatePhoneInput(input));
+      const hint = document.createElement("small");
+      hint.className = "phone-format-hint";
+      hint.id = hintId;
+      hint.textContent = "Any phone format is fine — include +1 or another country code if needed.";
+      input.insertAdjacentElement("afterend", hint);
+    });
+  }
+
+  function setupVehicleQuickRequest() {
+    if (!campaignVehicle) return;
+    [$(".floating-tools"), $(".mobile-bar")].filter(Boolean).forEach((bar) => {
+      const chatButton = $("[data-chat-open]", bar);
+      if (!chatButton || $(".vehicle-lead-cta", bar)) return;
+      const button = document.createElement("button");
+      button.type = "button";
+      button.className = "vehicle-lead-cta";
+      button.innerHTML = bar.classList.contains("mobile-bar")
+        ? "<span>Ask</span><small>This car</small>"
+        : '<i data-lucide="clipboard-check" aria-hidden="true"></i><span>Ask about this car</span>';
+      button.setAttribute("aria-label", `Ask about ${campaignVehicle.title}`);
+      button.addEventListener("click", () => startRequest(campaignVehicle.id, "Availability and details"));
+      bar.insertBefore(button, chatButton);
+    });
+  }
+
   function loadMetaPixel() {
     const pixelIds = Array.isArray(config.metaPixelIds)
       ? config.metaPixelIds.filter((id) => /^\d+$/.test(String(id)))
@@ -126,6 +168,12 @@
     $("#hero-headline").textContent = `${vehicle.title}. The exact classic from your ad.`;
     $("#hero-lede").textContent = `${money.format(vehicle.price)} asking price${vehicle.stock ? `, stock ${vehicle.stock}` : ""}. Stay with this exact car from the first photo to the request form.`;
     $("#inventory-heading-title").textContent = "Other current classics from Schindler Motors";
+    const proofSection = $("#campaign-proof");
+    const requestSection = $("#request");
+    if (proofSection && requestSection) {
+      proofSection.after(requestSection);
+      requestSection.classList.add("vehicle-request-priority");
+    }
   }
 
   function applyCampaignVehicle() {
@@ -213,7 +261,11 @@
 
   function validateStep(number) {
     const step = $(`.form-step[data-step='${number}']`);
-    return $$('[required]', step).every((field) => { if (!field.checkValidity()) { field.reportValidity(); return false; } return true; });
+    return $$('[required]', step).every((field) => {
+      if (field.type === "tel") validatePhoneInput(field);
+      if (!field.checkValidity()) { field.reportValidity(); return false; }
+      return true;
+    });
   }
 
   function startRequest(id = activeVehicle && activeVehicle.id, type = "") {
@@ -309,7 +361,7 @@
     const form = event.currentTarget;
     const data = new FormData(form);
     const vehicle = inventory.find((row) => row.id === data.get("vehicleSlug"));
-    const payload = { type: "vehicle-request", leadId: newLeadId(), dealerId: config.dealerId, dealerName: config.brand, landingId: config.landingId, vehicleSlug: data.get("vehicleSlug"), vehicle: vehicle ? vehicle.title : "", vehicleStock: vehicle ? vehicle.stock : "", vehiclePrice: vehicle ? vehicle.price : null, requestType: data.get("requestType"), firstName: data.get("firstName"), lastName: data.get("lastName"), phone: data.get("phone"), email: data.get("email"), purchaseMethod: data.get("purchaseMethod"), deliveryNeeded: Boolean(data.get("deliveryNeeded")), contactConsent: Boolean(data.get("contactConsent")), pageUrl: location.href, attribution: getAttribution() };
+    const payload = { type: "vehicle-request", leadId: newLeadId(), dealerId: config.dealerId, dealerName: config.brand, landingId: config.landingId, vehicleSlug: data.get("vehicleSlug"), vehicle: vehicle ? vehicle.title : "", vehicleStock: vehicle ? vehicle.stock : "", vehiclePrice: vehicle ? vehicle.price : null, requestType: data.get("requestType"), firstName: String(data.get("firstName") || "").trim(), lastName: String(data.get("lastName") || "").trim(), phone: String(data.get("phone") || "").trim(), email: String(data.get("email") || "").trim(), purchaseMethod: data.get("purchaseMethod"), deliveryNeeded: Boolean(data.get("deliveryNeeded")), contactConsent: Boolean(data.get("contactConsent")), pageUrl: location.href, attribution: getAttribution() };
     const sent = await deliver(payload, $(".form-status", form), "Request received. Schindler Motors will use these details to follow up.");
     if (sent) form.reset();
   }
@@ -317,10 +369,10 @@
   async function submitChat(event) {
     event.preventDefault();
     const form = event.currentTarget;
-    if (!form.reportValidity()) return;
+    if (!validatePhoneInput($("input[name='phone']", form), true) || !form.reportValidity()) return;
     const data = new FormData(form);
     const vehicle = inventory.find((row) => row.id === data.get("vehicleSlug"));
-    const payload = { type: "chat-question", leadId: newLeadId(), dealerId: config.dealerId, dealerName: config.brand, landingId: config.landingId, vehicleSlug: data.get("vehicleSlug"), vehicle: vehicle ? vehicle.title : "", vehicleStock: vehicle ? vehicle.stock : "", name: data.get("name"), phone: data.get("phone"), message: data.get("message"), contactConsent: Boolean(data.get("contactConsent")), pageUrl: location.href, attribution: getAttribution() };
+    const payload = { type: "chat-question", leadId: newLeadId(), dealerId: config.dealerId, dealerName: config.brand, landingId: config.landingId, vehicleSlug: data.get("vehicleSlug"), vehicle: vehicle ? vehicle.title : "", vehicleStock: vehicle ? vehicle.stock : "", name: String(data.get("name") || "").trim(), phone: String(data.get("phone") || "").trim(), message: String(data.get("message") || "").trim(), contactConsent: Boolean(data.get("contactConsent")), pageUrl: location.href, attribution: getAttribution() };
     const sent = await deliver(payload, $(".form-status", form), "Question received. The team will follow up using your number.");
     if (sent) form.reset();
   }
@@ -332,7 +384,7 @@
   }
 
   function init() {
-    getAttribution(); setupSectionLinks(); loadMetaPixel(); loadLiveChat(); populateSelect(); syncFeaturedContent(); applyCampaignVehicle(); render();
+    getAttribution(); setupSectionLinks(); loadMetaPixel(); loadLiveChat(); populateSelect(); setupFlexiblePhoneInputs(); syncFeaturedContent(); applyCampaignVehicle(); setupVehicleQuickRequest(); render();
     $$('[data-vehicle]').filter((button) => !button.closest("#inventory-list")).forEach((button) => button.addEventListener("click", () => openVehiclePage(button.dataset.vehicle)));
     $("#budget-filter").addEventListener("change", render);
     $("#reset-filter").addEventListener("click", () => { $("#budget-filter").value = "all"; render(); });
@@ -346,7 +398,6 @@
     $$('[data-chat-close]').forEach((button) => button.addEventListener("click", closeChat));
     $("#request-form").addEventListener("submit", submitRequest);
     $("#chat-form").addEventListener("submit", submitChat);
-    if (window.IMask) $$("input[type='tel']").forEach((input) => window.IMask(input, { mask: "(000) 000-0000" }));
     if (window.lucide) window.lucide.createIcons();
     setupMotion();
   }
