@@ -84,6 +84,66 @@
     });
   }
 
+  function phoneHref(phone) {
+    return `tel:${String(phone || "").replace(/[^\d+]/g, "")}`;
+  }
+
+  function replaceWithCallLink(element, phone) {
+    if (!element || !phone) return;
+    const link = document.createElement("a");
+    link.className = element.className;
+    link.href = phoneHref(phone);
+    link.innerHTML = `<i data-lucide="phone" aria-hidden="true"></i><span>Call ${phone}</span>`;
+    element.replaceWith(link);
+  }
+
+  function setupCampaignLanding() {
+    if (!campaignVehicle) return;
+    const primaryPhone = (Array.isArray(config.phones) && config.phones[0]) || config.phone;
+    [$("#vehicle-select"), $("#chat-vehicle-select")].filter(Boolean).forEach((select) => {
+      select.innerHTML = `<option value="${campaignVehicle.id}">${campaignVehicle.title} — ${money.format(campaignVehicle.price)}${campaignVehicle.stock ? ` — Stock ${campaignVehicle.stock}` : ""}</option>`;
+      select.value = campaignVehicle.id;
+      select.setAttribute("aria-label", "Exact vehicle from your ad");
+      select.closest("label")?.classList.add("vehicle-locked-field");
+    });
+
+    const email = $("#request-form input[name='email']");
+    if (email) {
+      email.required = false;
+      email.setAttribute("aria-label", "Email optional");
+      const label = email.closest("label");
+      if (label && label.firstChild && label.firstChild.nodeType === Node.TEXT_NODE) label.firstChild.textContent = "Email (optional)";
+    }
+
+    const actions = $(".hero .hero-actions");
+    if (actions && !$(".vehicle-certainty", actions.parentElement)) {
+      actions.insertAdjacentHTML("afterend", `<div class="vehicle-certainty" aria-label="Exact listing confirmation"><span><strong>Exact vehicle</strong>From your ad</span><span><strong>${campaignVehicle.images.length} real photos</strong>Of this listing</span><span><strong>${campaignVehicle.stock ? `Stock ${campaignVehicle.stock}` : "Current listing"}</strong>${money.format(campaignVehicle.price)} asking price</span></div>`);
+    }
+
+    replaceWithCallLink($("#hero-secondary-cta"), primaryPhone);
+    showStep(2);
+
+    const inventoryList = $("#inventory-list");
+    if (inventoryList && !$(".inventory-all-link", inventoryList.parentElement)) {
+      const url = new URL("/", location.origin);
+      new URLSearchParams(location.search).forEach((value, key) => url.searchParams.append(key, value));
+      url.hash = "inventory";
+      inventoryList.insertAdjacentHTML("afterend", `<a class="inventory-all-link" href="${url.href}">View all ${inventory.length} Schindler Motors cars</a>`);
+    }
+  }
+
+  function setupPhoneTracking() {
+    $$('a[href^="tel:"]').forEach((link) => link.addEventListener("click", () => {
+      if (!window.fbq) return;
+      window.fbq("trackCustom", "PhoneClick", {
+        content_name: campaignVehicle ? campaignVehicle.title : "Schindler Motors",
+        content_ids: campaignVehicle ? [campaignVehicle.id] : [],
+        vehicle_stock: campaignVehicle ? campaignVehicle.stock || "" : "",
+        phone_number: link.getAttribute("href").replace(/^tel:/, "")
+      });
+    }));
+  }
+
   function loadMetaPixel() {
     const pixelIds = Array.isArray(config.metaPixelIds)
       ? config.metaPixelIds.filter((id) => /^\d+$/.test(String(id)))
@@ -189,9 +249,10 @@
       return `<img src="${source}" srcset="${responsiveSrcset(source)}" sizes="(max-width: 740px) calc(100vw - 28px), 50vw" alt="${vehicle.title}, listing photo ${index + 1} of ${vehicle.images.length}" width="1200" height="800" loading="lazy" decoding="async">`;
     }).join("");
     $("[data-campaign-gallery]").textContent = `See All ${vehicle.images.length} Photos`;
-    $("#hero-headline").textContent = `${vehicle.title}. The exact classic from your ad.`;
-    $("#hero-lede").textContent = `${money.format(vehicle.price)} asking price${vehicle.stock ? `, stock ${vehicle.stock}` : ""}. Stay with this exact car from the first photo to the request form.`;
-    $("#inventory-heading-title").textContent = "Other current classics from Schindler Motors";
+    $(".hero .eyebrow").textContent = "THE EXACT VEHICLE FROM YOUR AD";
+    $("#hero-headline").textContent = vehicle.title;
+    $("#hero-lede").textContent = `This is the exact listing you opened. Review ${vehicle.images.length} real photos, the ${money.format(vehicle.price)} asking price${vehicle.stock ? `, and stock ${vehicle.stock}` : ""} — then call or send a request tied only to this car.`;
+    $("#inventory-heading-title").textContent = "Three more classics, if you want to compare.";
     const proofSection = $("#campaign-proof");
     const requestSection = $("#request");
     if (proofSection && requestSection) {
@@ -266,9 +327,10 @@
   }
 
   function render() {
-    const rows = filteredRows();
+    const allRows = filteredRows();
+    const rows = campaignVehicle ? allRows.filter((vehicle) => vehicle.id !== campaignVehicle.id).slice(0, 3) : allRows;
     $("#inventory-list").innerHTML = rows.length ? rows.map(card).join("") : `<div class="empty-state"><h3>No exact match</h3><p>Reset the filters to see the full collection.</p></div>`;
-    $("#inventory-count").textContent = `${rows.length} vehicle${rows.length === 1 ? "" : "s"}`;
+    $("#inventory-count").textContent = campaignVehicle ? `${rows.length} related vehicles` : `${rows.length} vehicle${rows.length === 1 ? "" : "s"}`;
     if (window.lucide) window.lucide.createIcons();
   }
 
@@ -307,9 +369,11 @@
     $("#request-title").textContent = `Ask about the ${vehicle.title}.`;
     $("#request-context").textContent = `${money.format(vehicle.price)} asking price${vehicle.stock ? ` · Stock ${vehicle.stock}` : ""}. Every answer will stay tied to this exact vehicle.`;
     if (type) $("select[name='requestType']").value = type;
-    showStep(1);
+    const directVehicleRequest = Boolean(campaignVehicle && vehicle.id === campaignVehicle.id);
+    showStep(directVehicleRequest ? 2 : 1);
+    if (window.fbq) window.fbq("trackCustom", "LeadFormOpen", { content_name: vehicle.title, content_ids: [vehicle.id], vehicle_stock: vehicle.stock || "", request_type: type || "Availability and details" });
     $("#request").scrollIntoView({ behavior: "smooth", block: "start" });
-    setTimeout(() => $("#vehicle-select").focus(), 450);
+    setTimeout(() => (directVehicleRequest ? $("#request-form input[name='firstName']") : $("#vehicle-select")).focus(), 450);
   }
 
   function openChat() {
@@ -417,7 +481,7 @@
   }
 
   function init() {
-    getAttribution(); setupSectionLinks(); loadMetaPixel(); populateSelect(); setupFlexiblePhoneInputs(); syncFeaturedContent(); applyCampaignVehicle(); setupVehicleQuickRequest(); render();
+    getAttribution(); setupSectionLinks(); loadMetaPixel(); populateSelect(); setupFlexiblePhoneInputs(); syncFeaturedContent(); applyCampaignVehicle(); setupCampaignLanding(); setupVehicleQuickRequest(); setupPhoneTracking(); render();
     $$('[data-vehicle]').filter((button) => !button.closest("#inventory-list")).forEach((button) => button.addEventListener("click", () => openVehiclePage(button.dataset.vehicle)));
     $("#budget-filter").addEventListener("change", render);
     $("#reset-filter").addEventListener("click", () => { $("#budget-filter").value = "all"; render(); });

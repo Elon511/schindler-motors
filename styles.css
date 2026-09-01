@@ -355,3 +355,87 @@ footer { padding: 34px 0; color: #bdbab4; background: #111; font-size: 14px; }
   .campaign-proof-photos { min-height: 470px; grid-template-columns: repeat(2, 1fr); grid-template-rows: 1.45fr .7fr; }
   .campaign-proof-photos img:first-child { grid-column: 1 / 3; grid-row: 1; }
 }
+
+/* Vehicle Landing V2: light showroom presentation for the exact advertised car. */
+.vehicle-landing body { color: #24221e; background: #f2e7d4; }
+.vehicle-landing .hero { min-height: 700px; color: #24221e; background: #f4ead8; border-bottom: 8px solid var(--gold); }
+.vehicle-landing .hero-photo { inset: 0 0 0 auto; width: 57%; height: 100%; object-position: center; background: #ded0b9; }
+.vehicle-landing .hero-overlay { background: linear-gradient(90deg, #f4ead8 0%, #f4ead8 43%, rgba(244,234,216,.93) 50%, rgba(244,234,216,.16) 72%, rgba(244,234,216,0) 100%); }
+.vehicle-landing .hero-frame { border-color: rgba(97,71,37,.3); }
+.vehicle-landing .hero-content { min-height: 700px; justify-content: center; padding: 62px 0 76px; }
+.vehicle-landing .hero-content .eyebrow { color: var(--red-dark); }
+.vehicle-landing .hero-content h1 { max-width: 560px; color: #29261f; font-size: clamp(54px, 5.6vw, 82px); line-height: .9; }
+.vehicle-landing .hero-content > p:not(.eyebrow) { max-width: 555px; color: #575147; font-size: 19px; }
+.vehicle-landing .hero-caption,
+.vehicle-landing .hero-mobile-listing,
+.vehicle-landing .hero-facts { display: none; }
+.vehicle-landing .hero-actions .ghost-button { color: #fff; background: #2d2a25; border-color: #2d2a25; }
+.vehicle-landing .vehicle-certainty { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 0; max-width: 610px; margin-top: 28px; border-top: 1px solid rgba(95,67,34,.28); border-bottom: 1px solid rgba(95,67,34,.28); }
+.vehicle-landing .vehicle-certainty span { min-height: 68px; display: grid; align-content: center; gap: 3px; padding: 11px 14px; color: #6d665c; font-size: 12px; line-height: 1.25; }
+.vehicle-landing .vehicle-certainty span + span { border-left: 1px solid rgba(95,67,34,.22); }
+.vehicle-landing .vehicle-certainty strong { color: var(--red-dark); font: 600 14px/1.2 var(--display); text-transform: uppercase; }
+
+.vehicle-landing .campaign-proof { padding: 76px 0 88px; color: #29261f; background: #fff9ed; border-top: 0; border-bottom: 1px solid #cdbb9f; }
+.vehicle-landing .campaign-proof-copy { max-width: 1050px; }
+.vehicle-landing .campaign-proof-copy .eyebrow { color: var(--red-dark); }
+.vehicle-landing .campaign-proof-copy h2 { max-width: 840px; color: #302a21; font-size: clamp(49px, 5vw, 76px); }
+.vehicle-landing .campaign-proof-price { color: var(--red-dark); }
+.vehicle-landing .campaign-proof-copy > p:not(.eyebrow):not(.campaign-proof-price) { max-width: 760px; color: #645d52; font-size: 18px; }
+.vehicle-landing .campaign-proof-specs { border-color: #d4c3a8; }
+.vehicle-landing .campaign-proof-specs div { border-color: #d4c3a8; }
+.vehicle-landing .campaign-proof-specs dt { color: #746c60; }
+.vehicle-landing .campaign-proof-specs dd { color: #29261f; }
+.vehicle-landing .campaign-proof-actions .cream-button { color: #fff; background: #2d2a25; border-color: #2d2a25; }
+.vehicle-landing .campaign-proof-actions .ghost-button { color: var(--red-dark); background: transparent; border-color: var(--red-dark); }
+.vehicle-landing .campaign-proof-photos { margin-top: 14px; }
+.vehicle-landing .campaign-proof-photos img { background: #eadfce; border-color: #d1bea0; }
+
+.vehicle-landing .request-section { padding: 82px 0; color: #29261f; background: #eadcc6; }
+.vehicle-landing .request-shell { grid-template-columns: .75fr 1.25fr; gap: 58px; }
+.vehicle-landing .request-copy .eyebrow { color: var(--red-dark); }
+.vehicle-landing .request-copy h2 { color: #302a21; }
+.vehicle-landing .request-copy > p:not(.eyebrow) { color: #5d574e; }
+.vehicle-landing .request-phone { border-color: #bca98b; }
+.vehicle-landing .request-phone span { color: #686055; }
+.vehicle-landing .request-phone a { color: var(--red-dark); }
+.vehicle-landing .request-phone a.request-email { color: #67470f; }
+.vehicle-landing .request-form { min-height: 0; background: #fffaf1; box-shadow: 10px 10px 0 rgba(91,66,34,.13); }
+.vehicle-landing .request-form .form-progress { display: none; }
+.vehicle-landing .form-step[data-step="2"] .step-actions { grid-template-columns: 1fr; }
+.vehicle-landing .form-step[data-step="2"] .step-back { display: none; }
+.vehicle-landing .vehicle-locked-field select { color: var(--red-dark); background: #f4e8d6; border: 2px solid #a87b31; font-weight: 700; }
+.vehicle-landing .vehicle-request-priority { border-top: 0; }
+
+.vehicle-landing .inventory-section { padding: 76px 0 88px; background: #f8efe1; }
+.vehicle-landing .inventory-heading { grid-template-columns: 1fr; gap: 18px; }
+.vehicle-landing .inventory-controls { display: none; }
+.vehicle-landing .inventory-list { grid-template-columns: repeat(3, 1fr); }
+.vehicle-landing .classic-card > a { grid-template-columns: 1fr; }
+.vehicle-landing .classic-image { min-height: 235px; }
+.vehicle-landing .classic-copy h3 { font-size: 29px; }
+.vehicle-landing .inventory-all-link { width: fit-content; min-height: 54px; display: inline-flex; align-items: center; justify-content: center; margin: 30px auto 0; padding: 0 24px; color: #fff; background: var(--red); border: 1px solid var(--red); font: 600 15px/1 var(--display); letter-spacing: .03em; text-decoration: none; text-transform: uppercase; }
+.vehicle-landing .closer-section,
+.vehicle-landing .steps-section { display: none; }
+
+@media (max-width: 740px) {
+  .vehicle-landing .hero { min-height: 0; display: flex; flex-direction: column; }
+  .vehicle-landing .hero-photo { position: relative; inset: auto; order: 1; width: 100%; height: auto; aspect-ratio: 3 / 2; object-position: center; }
+  .vehicle-landing .hero-overlay,
+  .vehicle-landing .hero-frame { display: none; }
+  .vehicle-landing .hero-content { order: 2; width: min(100% - 28px, 1280px); min-height: 0; justify-content: flex-start; padding: 27px 0 42px; }
+  .vehicle-landing .hero-content h1 { margin-bottom: 15px; font-size: clamp(43px, 12.5vw, 57px); line-height: .94; }
+  .vehicle-landing .hero-content > p:not(.eyebrow) { color: #575147; font-size: 17px; line-height: 1.45; }
+  .vehicle-landing .vehicle-certainty { grid-template-columns: 1fr; width: 100%; margin-top: 17px; }
+  .vehicle-landing .vehicle-certainty span { min-height: 55px; }
+  .vehicle-landing .vehicle-certainty span + span { border-left: 0; border-top: 1px solid rgba(95,67,34,.22); }
+  .vehicle-landing .campaign-proof { padding: 54px 0; }
+  .vehicle-landing .campaign-proof-copy h2 { font-size: 42px; }
+  .vehicle-landing .request-section { padding: 58px 0; }
+  .vehicle-landing .request-shell { width: min(100% - 28px, 1120px); grid-template-columns: 1fr; gap: 34px; }
+  .vehicle-landing .request-copy h2 { font-size: 42px; }
+  .vehicle-landing .request-form { padding: 24px 18px; }
+  .vehicle-landing .inventory-section { padding: 58px 0 68px; }
+  .vehicle-landing .inventory-list { grid-template-columns: 1fr; }
+  .vehicle-landing .classic-image { min-height: 250px; }
+  .vehicle-landing .mobile-bar { grid-template-columns: .9fr .9fr 1.2fr .72fr; }
+}
