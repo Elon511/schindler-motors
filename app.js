@@ -22,6 +22,16 @@
     return Boolean(config.demoMode) || isLocalPreview();
   }
 
+  function mobileImage(src) {
+    return src.replace(/\.webp$/i, "-480.webp");
+  }
+
+  function setResponsiveImage(image, src) {
+    if (!image || !src) return;
+    image.src = src;
+    image.srcset = `${mobileImage(src)} 480w, ${src} 1200w`;
+  }
+
   function validatePhoneInput(input, report = false) {
     if (!input) return false;
     const digits = input.value.replace(/\D/g, "");
@@ -58,7 +68,6 @@
       button.innerHTML = bar.classList.contains("mobile-bar")
         ? "<span>Ask</span><small>This car</small>"
         : '<i data-lucide="clipboard-check" aria-hidden="true"></i><span>Ask about this car</span>';
-      button.setAttribute("aria-label", `Ask about ${campaignVehicle.title}`);
       button.addEventListener("click", () => startRequest(campaignVehicle.id, "Availability and details"));
       bar.insertBefore(button, chatButton);
     });
@@ -82,7 +91,7 @@
   }
 
   function loadLiveChat() {
-    if (isPreview() || !config.liveChatLicense) return;
+    if (window.LiveChatWidget || isPreview() || !config.liveChatLicense) return;
     window.__lc = window.__lc || {};
     window.__lc.license = Number(config.liveChatLicense);
     window.__lc.integration_name = "manual_channels";
@@ -108,7 +117,7 @@
 
   function updateVehicleMetadata(vehicle) {
     const title = `${vehicle.title} for Sale — ${money.format(vehicle.price)} | Schindler Motors`;
-    const description = `${vehicle.title}, stock ${vehicle.stock || "available listing"}, offered at ${money.format(vehicle.price)} by Schindler Motors. View ten real photos and ask about this exact vehicle.`;
+    const description = `${vehicle.title}, stock ${vehicle.stock || "available listing"}, offered at ${money.format(vehicle.price)} by Schindler Motors. View ${vehicle.images.length} real photos and ask about this exact vehicle.`;
     document.title = title;
     const descriptionMeta = document.querySelector('meta[name="description"]');
     const ogTitle = document.querySelector('meta[property="og:title"]');
@@ -164,7 +173,8 @@
     $("#campaign-proof-price").textContent = `${money.format(vehicle.price)} asking price${vehicle.stock ? ` · Stock ${vehicle.stock}` : ""}`;
     $("#campaign-proof-mood").textContent = vehicle.mood;
     $("#campaign-proof-specs").innerHTML = [["Engine", vehicle.engine], ["Transmission", vehicle.transmission], ["Mileage", vehicle.mileage], ["Body", vehicle.body], ["Exterior", vehicle.exterior], ["Interior", vehicle.interior]].filter(([, value]) => value).map(([label, value]) => `<div><dt>${label}</dt><dd>${value}</dd></div>`).join("");
-    $("#campaign-proof-photos").innerHTML = vehicle.images.map((src, index) => `<img src="${src}" alt="${vehicle.title}, listing photo ${index + 1} of ${vehicle.images.length}" width="1200" height="800"${index ? ' loading="lazy"' : ""}>`).join("");
+    $("#campaign-proof-photos").innerHTML = vehicle.images.map((src, index) => `<img src="${src}" srcset="${mobileImage(src)} 480w, ${src} 1200w" sizes="(max-width: 740px) calc(100vw - 28px), 50vw" alt="${vehicle.title}, listing photo ${index + 1} of ${vehicle.images.length}" width="1200" height="800" loading="lazy" decoding="async">`).join("");
+    $("[data-campaign-gallery]").textContent = `See All ${vehicle.images.length} Photos`;
     $("#hero-headline").textContent = `${vehicle.title}. The exact classic from your ad.`;
     $("#hero-lede").textContent = `${money.format(vehicle.price)} asking price${vehicle.stock ? `, stock ${vehicle.stock}` : ""}. Stay with this exact car from the first photo to the request form.`;
     $("#inventory-heading-title").textContent = "Other current classics from Schindler Motors";
@@ -180,8 +190,8 @@
     if (!campaignVehicle) return;
     if (!pathVehicleMatch) setVehicleUrl(campaignVehicle);
     const heroPhoto = $("#hero-vehicle-image");
-    heroPhoto.style.backgroundImage = `url("${campaignVehicle.images[0]}")`;
-    heroPhoto.setAttribute("aria-label", `${campaignVehicle.title}, exact current listing`);
+    setResponsiveImage(heroPhoto, campaignVehicle.images[0]);
+    heroPhoto.alt = `${campaignVehicle.title}, exact current listing`;
     $("#hero-vehicle-kicker").textContent = "THE VEHICLE YOU CAME TO SEE";
     $("#hero-vehicle-title").textContent = campaignVehicle.title;
     $("#hero-vehicle-meta").textContent = `${money.format(campaignVehicle.price)}${campaignVehicle.stock ? ` · STOCK ${campaignVehicle.stock}` : ""}`;
@@ -190,6 +200,7 @@
     $("#hero-primary-cta").textContent = "Check Availability";
     $("#hero-secondary-cta").textContent = "Request Walk-Around Video";
     $$("[data-vehicle]", $(".hero")).forEach((button) => button.dataset.vehicle = campaignVehicle.id);
+    $(".hero-gallery-button").textContent = `See all ${campaignVehicle.images.length} photos`;
     $("#vehicle-select").value = campaignVehicle.id;
     $("#request-title").textContent = `Ask about the ${campaignVehicle.title}.`;
     $("#request-context").textContent = `${money.format(campaignVehicle.price)} asking price${campaignVehicle.stock ? ` · Stock ${campaignVehicle.stock}` : ""}. Every answer will stay tied to this exact vehicle.`;
@@ -208,14 +219,17 @@
     const defaultVehicle = inventory.find((vehicle) => vehicle.id === "1955-cadillac-deville-convertible") || inventory[0];
     if (defaultVehicle) {
       const heroPhoto = $("#hero-vehicle-image");
-      heroPhoto.style.backgroundImage = `url("${defaultVehicle.images[0]}")`;
-      heroPhoto.setAttribute("aria-label", `${defaultVehicle.title}, current listing`);
+      setResponsiveImage(heroPhoto, defaultVehicle.images[0]);
+      heroPhoto.alt = `${defaultVehicle.title}, current listing`;
       $("#hero-vehicle-title").textContent = defaultVehicle.title;
       $("#hero-vehicle-meta").textContent = `${money.format(defaultVehicle.price)}${defaultVehicle.stock ? ` · STOCK ${defaultVehicle.stock}` : ""}`;
       $("#hero-mobile-title").textContent = defaultVehicle.title;
       $("#hero-mobile-meta").textContent = `${money.format(defaultVehicle.price)}${defaultVehicle.stock ? ` · STOCK ${defaultVehicle.stock}` : ""}`;
       const galleryButton = $(".hero-gallery-button");
-      if (galleryButton) galleryButton.dataset.vehicle = defaultVehicle.id;
+      if (galleryButton) {
+        galleryButton.dataset.vehicle = defaultVehicle.id;
+        galleryButton.textContent = `See all ${defaultVehicle.images.length} photos`;
+      }
     }
     $$(".match-options [data-vehicle]").forEach((button) => {
       const vehicle = inventory.find((row) => row.id === button.dataset.vehicle);
@@ -234,7 +248,7 @@
   }
 
   function card(vehicle) {
-    return `<article class="classic-card ${campaignVehicle && campaignVehicle.id === vehicle.id ? "campaign-match" : ""}"><a href="${vehicleHref(vehicle)}" data-vehicle="${vehicle.id}" aria-label="View ${vehicle.title}"><div class="classic-image"><img src="${vehicle.images[0]}" alt="${vehicle.title}" width="1200" height="800"><span class="listing-status">${campaignVehicle && campaignVehicle.id === vehicle.id ? "FROM YOUR AD" : "CURRENT LISTING"}</span><span class="photo-count"><i data-lucide="images" aria-hidden="true"></i> ${vehicle.images.length} PHOTOS</span></div><div class="classic-copy"><p class="classic-era">${vehicle.year} · ${vehicle.body}</p><h3>${vehicle.title}</h3><p class="classic-price">ASKING ${money.format(vehicle.price)}</p><ul class="classic-specs"><li><strong>Stock:</strong> ${vehicle.stock || "Confirm with dealer"}</li><li><strong>Engine:</strong> ${vehicle.engine}</li><li><strong>Transmission:</strong> ${vehicle.transmission}</li><li><strong>Mileage:</strong> ${vehicle.mileage}</li></ul><span class="classic-more">Open vehicle page · ${vehicle.images.length} photos <i data-lucide="arrow-up-right" aria-hidden="true"></i></span></div></a></article>`;
+    return `<article class="classic-card ${campaignVehicle && campaignVehicle.id === vehicle.id ? "campaign-match" : ""}"><a href="${vehicleHref(vehicle)}" data-vehicle="${vehicle.id}"><div class="classic-image"><img src="${vehicle.images[0]}" srcset="${mobileImage(vehicle.images[0])} 480w, ${vehicle.images[0]} 1200w" sizes="(max-width: 740px) calc(100vw - 28px), (max-width: 1080px) 55vw, 35vw" alt="${vehicle.title}" loading="lazy" decoding="async" width="1200" height="800"><span class="listing-status">${campaignVehicle && campaignVehicle.id === vehicle.id ? "FROM YOUR AD" : "CURRENT LISTING"}</span><span class="photo-count"><i data-lucide="images" aria-hidden="true"></i> ${vehicle.images.length} PHOTOS</span></div><div class="classic-copy"><p class="classic-era">${vehicle.year} · ${vehicle.body}</p><h3>${vehicle.title}</h3><p class="classic-price">ASKING ${money.format(vehicle.price)}</p><ul class="classic-specs"><li><strong>Stock:</strong> ${vehicle.stock || "Confirm with dealer"}</li><li><strong>Engine:</strong> ${vehicle.engine}</li><li><strong>Transmission:</strong> ${vehicle.transmission}</li><li><strong>Mileage:</strong> ${vehicle.mileage}</li></ul><span class="classic-more">Open vehicle page · ${vehicle.images.length} photos <i data-lucide="arrow-up-right" aria-hidden="true"></i></span></div></a></article>`;
   }
 
   function render() {
@@ -285,16 +299,27 @@
   }
 
   function openChat() {
-    if (window.LiveChatWidget && typeof window.LiveChatWidget.call === "function") {
+    if (!isPreview() && config.liveChatLicense) {
+      loadLiveChat();
+      document.documentElement.classList.add("internal-chat-open");
+      if (!openChat.visibilityBound && window.LiveChatWidget && typeof window.LiveChatWidget.on === "function") {
+        window.LiveChatWidget.on("visibility_changed", (data) => {
+          const visibility = data && data.visibility;
+          document.documentElement.classList.toggle("internal-chat-open", visibility === "maximized");
+          if (visibility === "minimized" && typeof window.LiveChatWidget.call === "function") window.LiveChatWidget.call("hide");
+        });
+        openChat.visibilityBound = true;
+      }
       window.LiveChatWidget.call("maximize");
       if (window.fbq) window.fbq("trackCustom", "LiveChatOpen");
       return;
     }
     const vehicle = activeVehicle || campaignVehicle;
     if (vehicle) $("#chat-vehicle-select").value = vehicle.id;
+    document.documentElement.classList.add("internal-chat-open");
     $("#chat-panel").removeAttribute("inert"); $("#chat-panel").classList.add("open"); $(".chat-scrim").classList.add("open"); $("#chat-panel").setAttribute("aria-hidden", "false"); setTimeout(() => $("#chat-vehicle-select").focus(), 250);
   }
-  function closeChat() { $("#chat-panel").classList.remove("open"); $(".chat-scrim").classList.remove("open"); $("#chat-panel").setAttribute("aria-hidden", "true"); $("#chat-panel").setAttribute("inert", ""); }
+  function closeChat() { document.documentElement.classList.remove("internal-chat-open"); $("#chat-panel").classList.remove("open"); $(".chat-scrim").classList.remove("open"); $("#chat-panel").setAttribute("aria-hidden", "true"); $("#chat-panel").setAttribute("inert", ""); }
 
   function newLeadId() {
     return window.crypto && typeof window.crypto.randomUUID === "function"
@@ -377,14 +402,8 @@
     if (sent) form.reset();
   }
 
-  function setupMotion() {
-    if (!window.gsap || matchMedia("(prefers-reduced-motion: reduce)").matches) return;
-    window.gsap.registerPlugin(window.ScrollTrigger);
-    window.gsap.utils.toArray(".reveal").forEach((element) => window.gsap.from(element, { y: 27, opacity: 0, duration: .72, ease: "power2.out", scrollTrigger: { trigger: element, start: "top 89%", once: true } }));
-  }
-
   function init() {
-    getAttribution(); setupSectionLinks(); loadMetaPixel(); loadLiveChat(); populateSelect(); setupFlexiblePhoneInputs(); syncFeaturedContent(); applyCampaignVehicle(); setupVehicleQuickRequest(); render();
+    getAttribution(); setupSectionLinks(); loadMetaPixel(); populateSelect(); setupFlexiblePhoneInputs(); syncFeaturedContent(); applyCampaignVehicle(); setupVehicleQuickRequest(); render();
     $$('[data-vehicle]').filter((button) => !button.closest("#inventory-list")).forEach((button) => button.addEventListener("click", () => openVehiclePage(button.dataset.vehicle)));
     $("#budget-filter").addEventListener("change", render);
     $("#reset-filter").addEventListener("click", () => { $("#budget-filter").value = "all"; render(); });
@@ -399,7 +418,6 @@
     $("#request-form").addEventListener("submit", submitRequest);
     $("#chat-form").addEventListener("submit", submitChat);
     if (window.lucide) window.lucide.createIcons();
-    setupMotion();
   }
 
   if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", init); else init();

@@ -282,7 +282,6 @@ window.INVENTORY = [
       "assets/cars/1956-chevrolet-bel-air-3.webp",
       "assets/cars/1956-chevrolet-bel-air-4.webp",
       "assets/cars/1956-chevrolet-bel-air-5.webp",
-      "assets/cars/1956-chevrolet-bel-air-6.webp",
       "assets/cars/1956-chevrolet-bel-air-7.webp",
       "assets/cars/1956-chevrolet-bel-air-8.webp",
       "assets/cars/1956-chevrolet-bel-air-9.webp",
@@ -454,7 +453,6 @@ window.INVENTORY = [
       "assets/cars/1960-chevrolet-impala-1945-fl-1.webp",
       "assets/cars/1960-chevrolet-impala-1945-fl-2.webp",
       "assets/cars/1960-chevrolet-impala-1945-fl-3.webp",
-      "assets/cars/1960-chevrolet-impala-1945-fl-4.webp",
       "assets/cars/1960-chevrolet-impala-1945-fl-5.webp",
       "assets/cars/1960-chevrolet-impala-1945-fl-6.webp",
       "assets/cars/1960-chevrolet-impala-1945-fl-7.webp",
@@ -516,9 +514,7 @@ window.INVENTORY = [
       "assets/cars/1961-ford-thunderbird-5.webp",
       "assets/cars/1961-ford-thunderbird-6.webp",
       "assets/cars/1961-ford-thunderbird-7.webp",
-      "assets/cars/1961-ford-thunderbird-8.webp",
-      "assets/cars/1961-ford-thunderbird-9.webp",
-      "assets/cars/1961-ford-thunderbird-10.webp"
+      "assets/cars/1961-ford-thunderbird-8.webp"
     ]
   },
   {

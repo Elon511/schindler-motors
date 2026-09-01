@@ -4,6 +4,7 @@
     "title": "1954 Chevrolet 3100",
     "stock": "1837-FL",
     "price": 15500,
+    "photoCount": 10,
     "path": "/cars/1954-chevrolet-3100/"
   },
   {
@@ -11,6 +12,7 @@
     "title": "1955 Cadillac Deville Convertible",
     "stock": "1785-FL",
     "price": 46500,
+    "photoCount": 10,
     "path": "/cars/1955-cadillac-deville-convertible/"
   },
   {
@@ -18,6 +20,7 @@
     "title": "1955 Chevrolet 210",
     "stock": "1888-FL",
     "price": 38900,
+    "photoCount": 10,
     "path": "/cars/1955-chevrolet-210/"
   },
   {
@@ -25,6 +28,7 @@
     "title": "1955 Chevrolet 210",
     "stock": "1964-FL",
     "price": 41400,
+    "photoCount": 10,
     "path": "/cars/1955-chevrolet-210-1964-fl/"
   },
   {
@@ -32,6 +36,7 @@
     "title": "1955 Chevrolet 3100",
     "stock": "1884-FL",
     "price": 14300,
+    "photoCount": 10,
     "path": "/cars/1955-chevrolet-3100/"
   },
   {
@@ -39,6 +44,7 @@
     "title": "1955 Chevrolet Bel Air",
     "stock": "2140-FL",
     "price": 49500,
+    "photoCount": 10,
     "path": "/cars/1955-chevrolet-bel-air/"
   },
   {
@@ -46,6 +52,7 @@
     "title": "1955 Chevrolet Bel Air",
     "stock": "1838-FL",
     "price": 53000,
+    "photoCount": 10,
     "path": "/cars/1955-chevrolet-bel-air-1838-fl/"
   },
   {
@@ -53,6 +60,7 @@
     "title": "1955 Chevrolet Belair",
     "stock": "2025-FL",
     "price": 72300,
+    "photoCount": 10,
     "path": "/cars/1955-chevrolet-belair/"
   },
   {
@@ -60,6 +68,7 @@
     "title": "1955 Ford F100",
     "stock": "1951-FL",
     "price": 16700,
+    "photoCount": 10,
     "path": "/cars/1955-ford-f100/"
   },
   {
@@ -67,6 +76,7 @@
     "title": "1956 Chevrolet Bel Air",
     "stock": "2128-FL",
     "price": 68700,
+    "photoCount": 9,
     "path": "/cars/1956-chevrolet-bel-air/"
   },
   {
@@ -74,6 +84,7 @@
     "title": "1957 Chevrolet 150",
     "stock": "1881-FL",
     "price": 92000,
+    "photoCount": 10,
     "path": "/cars/1957-chevrolet-150/"
   },
   {
@@ -81,6 +92,7 @@
     "title": "1957 Chevrolet Bel Air",
     "stock": "2087-FL",
     "price": 108100,
+    "photoCount": 10,
     "path": "/cars/1957-chevrolet-bel-air/"
   },
   {
@@ -88,6 +100,7 @@
     "title": "1957 Pontiac Starchief",
     "stock": "1781-FL",
     "price": 9800,
+    "photoCount": 10,
     "path": "/cars/1957-pontiac-starchief/"
   },
   {
@@ -95,6 +108,7 @@
     "title": "1960 Chevrolet Corvette",
     "stock": "1941-FL",
     "price": 117300,
+    "photoCount": 10,
     "path": "/cars/1960-chevrolet-corvette/"
   },
   {
@@ -102,6 +116,7 @@
     "title": "1960 Chevrolet Impala",
     "stock": "1984-FL",
     "price": 95500,
+    "photoCount": 10,
     "path": "/cars/1960-chevrolet-impala/"
   },
   {
@@ -109,6 +124,7 @@
     "title": "1960 Chevrolet Impala",
     "stock": "1945-FL",
     "price": 101700,
+    "photoCount": 9,
     "path": "/cars/1960-chevrolet-impala-1945-fl/"
   },
   {
@@ -116,6 +132,7 @@
     "title": "1961 Chevrolet Impala",
     "stock": "1801-FL",
     "price": 81200,
+    "photoCount": 10,
     "path": "/cars/1961-chevrolet-impala/"
   },
   {
@@ -123,6 +140,7 @@
     "title": "1961 Ford Thunderbird",
     "stock": "1995-FL",
     "price": 13300,
+    "photoCount": 8,
     "path": "/cars/1961-ford-thunderbird/"
   },
   {
@@ -130,6 +148,7 @@
     "title": "1962 Chevrolet Corvette",
     "stock": "1908-FL",
     "price": 79000,
+    "photoCount": 10,
     "path": "/cars/1962-chevrolet-corvette/"
   },
   {
@@ -137,6 +156,7 @@
     "title": "1962 Chevrolet Impala",
     "stock": "1939-FL",
     "price": 65500,
+    "photoCount": 10,
     "path": "/cars/1962-chevrolet-impala/"
   }
 ]
