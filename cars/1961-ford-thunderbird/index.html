@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="vehicle-landing">
 <head>
   <!-- Generated vehicle route. Edit the root index and rerun generate_vehicle_routes.js. -->
   <meta name="vehicle-id" content="1961-ford-thunderbird">
@@ -32,8 +32,8 @@
 
   <header class="site-header" id="top">
     <div class="header-shell">
-      <a class="logo" href="#top"><span class="logo-wing"></span><strong>Schindler</strong><small>MOTORS · PORT MATILDA, PA</small><span class="logo-wing"></span></a>
-      <nav aria-label="Main navigation"><a href="#memory-match">Featured listings</a><a href="#inventory">Cars for sale</a><a href="#look-closer">Photo galleries</a><a href="#visit">Visit</a></nav>
+      <a class="logo" href="./" aria-label="Schindler Motors home"><span class="logo-wing"></span><strong>Schindler</strong><small>MOTORS · PORT MATILDA, PA</small><span class="logo-wing"></span></a>
+      <nav aria-label="Main navigation"><a href="./#memory-match">Featured listings</a><a href="#inventory">Cars for sale</a><a href="#look-closer" data-gallery-nav>Photo galleries</a><a href="#visit">Visit</a></nav>
       <div class="header-phones" role="group" aria-label="Schindler Motors sales phone lines">
         <a class="header-phone" href="tel:+18142125574"><i data-lucide="phone" aria-hidden="true"></i><span>+1&nbsp;(814)&nbsp;212&#8209;5574</span></a>
         <a class="header-phone" href="tel:+18142000405"><i data-lucide="phone" aria-hidden="true"></i><span>+1&nbsp;(814)&nbsp;200&#8209;0405</span></a>
@@ -48,7 +48,7 @@
       <div class="hero-frame" aria-hidden="true"></div>
       <div class="hero-content reveal">
         <p class="eyebrow">FOR THE PART OF YOU THAT STILL REMEMBERS</p>
-        <h1 id="hero-headline">The Friday-night feeling <em>never left.</em></h1>
+        <h1 id="hero-headline">1961 Ford Thunderbird</h1>
         <p id="hero-lede">Chrome in the streetlights. The long hood in front of you. A V8 you could recognize before the car turned the corner.</p>
         <div class="hero-mobile-listing"><span id="hero-mobile-title">1955 Cadillac DeVille Convertible</span><strong id="hero-mobile-meta">$46,500 · STOCK 1785-FL</strong></div>
         <div class="hero-actions"><button class="red-button" id="hero-primary-cta" type="button" data-hero-request="Availability and details">Check Availability</button><button class="ghost-button" type="button" data-hero-request="Personal walk-around video" id="hero-secondary-cta">Request Walk-Around Video</button></div>
@@ -139,7 +139,7 @@
             <label class="check"><input type="checkbox" name="deliveryNeeded"><span>I may need delivery to my location</span></label>
             <label class="consent"><input type="checkbox" name="contactConsent" required><span>I agree to be contacted about this request by phone, text, or email. Consent is not a condition of purchase. Message and data rates may apply.</span></label>
             <p class="privacy-note">We collect your contact details, selected vehicle, and request information only to respond and operate this service. See our <a href="privacy/">Privacy Policy</a> and <a href="terms/">Terms of Use</a>.</p>
-            <div class="step-actions"><button class="step-back" type="button" data-back="2">Back</button><button class="submit-request" type="submit">Ask about this vehicle <i data-lucide="arrow-right" aria-hidden="true"></i></button></div>
+            <div class="step-actions"><button class="step-back" type="button" data-back="2">Back</button><button class="submit-request" type="submit">Send my request <i data-lucide="arrow-right" aria-hidden="true"></i></button></div>
             <p class="form-status" role="status" aria-live="polite"></p>
           </section>
         </form>
@@ -170,7 +170,7 @@
 
   <footer><div class="wide-shell footer-grid"><div><strong>Schindler Motors</strong><span>Port Matilda, Pennsylvania</span></div><p>Published asking prices, details, and availability may change. Confirm all material facts directly before purchase.</p><div><a href="tel:+18142125574">+1&nbsp;(814)&nbsp;212&#8209;5574</a><a href="tel:+18142000405">+1&nbsp;(814)&nbsp;200&#8209;0405</a><a href="mailto:Sales@schindlermotors.com">Sales@schindlermotors.com</a><a href="privacy/">Privacy</a><a href="terms/">Terms</a></div></div></footer>
 
-  <aside class="chat-panel" id="chat-panel" aria-hidden="true" inert><div class="chat-head"><div><strong>Quick question?</strong><span>Choose the exact car and leave the best number to reach you.</span></div><button type="button" data-chat-close aria-label="Close chat"><i data-lucide="x" aria-hidden="true"></i></button></div><form id="chat-form"><label>Exact vehicle<select name="vehicleSlug" id="chat-vehicle-select" required><option value="">Choose the exact vehicle</option></select></label><label>Question<textarea name="message" rows="3" required placeholder="Is this exact vehicle still available?"></textarea></label><label>Name<input name="name" type="text" required></label><label>Phone<input name="phone" type="tel" required placeholder="(555) 555-5555"></label><label class="consent"><input name="contactConsent" type="checkbox" required><span>I agree to be contacted about this request.</span></label><p class="privacy-note">How we use your information: <a href="privacy/">Privacy Policy</a>.</p><button class="red-button full" type="submit">Ask about this vehicle</button><p class="form-status" role="status" aria-live="polite"></p></form></aside><div class="chat-scrim" data-chat-close></div>
+  <aside class="chat-panel" id="chat-panel" aria-hidden="true" inert><div class="chat-head"><div><strong>Quick question?</strong><span>Choose the exact car and leave your name, phone, and email.</span></div><button type="button" data-chat-close aria-label="Close chat"><i data-lucide="x" aria-hidden="true"></i></button></div><form id="chat-form"><label>Exact vehicle<select name="vehicleSlug" id="chat-vehicle-select" required><option value="">Choose the exact vehicle</option></select></label><label>Question<textarea name="message" rows="3" required placeholder="Is this exact vehicle still available?"></textarea></label><label>Name<input name="name" type="text" autocomplete="name" required></label><label>Phone<input name="phone" type="tel" required placeholder="(555) 555-5555"></label><label>Email<input name="email" type="email" autocomplete="email" required maxlength="120" placeholder="you@example.com"></label><label class="consent"><input name="contactConsent" type="checkbox" required><span>I agree to be contacted about this request.</span></label><p class="privacy-note">How we use your information: <a href="privacy/">Privacy Policy</a>.</p><button class="red-button full" type="submit">Ask about this vehicle</button><p class="form-status" role="status" aria-live="polite"></p></form></aside><div class="chat-scrim" data-chat-close></div>
 
   <nav class="floating-tools" aria-label="Quick contact"><button type="button" data-chat-open><i data-lucide="messages-square" aria-hidden="true"></i><span>Live chat</span></button></nav>
   <nav class="mobile-bar" aria-label="Mobile quick contact"><a href="tel:+18142125574"><span>Call</span><small>+1&nbsp;(814)<br>212&#8209;5574</small></a><a href="tel:+18142000405"><span>Call</span><small>+1&nbsp;(814)<br>200&#8209;0405</small></a><button type="button" data-chat-open>Live chat</button></nav>
@@ -178,6 +178,6 @@
   <script src="data/inventory.js"></script>
   <script src="config.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/lucide@0.468.0/dist/umd/lucide.min.js" defer></script>
-  <script src="app.js" defer></script>
+  <script src="app.js?v=hero-nav-20260902" defer></script>
 </body>
 </html>
