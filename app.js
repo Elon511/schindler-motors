@@ -43,13 +43,106 @@
     image.src = source;
   }
 
-  function validatePhoneInput(input, report = false) {
+  function validatePhoneInput(input) {
     if (!input) return false;
     const digits = input.value.replace(/\D/g, "");
     input.setCustomValidity(digits.length >= 7 ? "" : "Enter at least 7 digits. You may use +, spaces, parentheses, or dashes.");
-    if (report && !input.checkValidity()) input.reportValidity();
-    return input.checkValidity();
+    return input.validity.valid;
   }
+
+  function fieldErrorMessage(field) {
+    if (field.disabled || !field.willValidate) return "";
+    const value = String(field.value || "").trim();
+    if (field.required && (field.type === "checkbox" ? !field.checked : !value)) {
+      if (field.type === "checkbox") return "Please check this box so the dealer can contact you about your request.";
+      const required = {
+        firstName: "Please enter your first name.",
+        lastName: "Please enter your last name.",
+        name: "Please enter your name.",
+        phone: "Please enter your phone number.",
+        email: "Please enter your email address.",
+        vehicleSlug: "Please choose the exact vehicle.",
+        requestType: "Please choose what you would like to receive.",
+        message: "Please enter your question."
+      };
+      return required[field.name] || "Please complete this field.";
+    }
+    if (field.type === "tel" && !validatePhoneInput(field)) return "Please enter at least 7 digits. Spaces, +, parentheses, and dashes are welcome.";
+    if (field.type === "email" && field.validity.typeMismatch) return "Please enter a valid email address, such as name@example.com.";
+    if (!field.validity.valid) return "Please check this field and try again.";
+    return "";
+  }
+
+  function setFieldError(field, message) {
+    const id = `${field.form.id}-${field.name}-error`;
+    let error = document.getElementById(id);
+    if (!error && message) {
+      error = document.createElement("small");
+      error.id = id;
+      error.className = "field-error";
+      error.lang = "en";
+      error.setAttribute("role", "alert");
+      const anchor = field.type === "checkbox" ? field.closest("label") || field : field;
+      anchor.insertAdjacentElement("afterend", error);
+      const descriptions = new Set((field.getAttribute("aria-describedby") || "").split(/\s+/).filter(Boolean));
+      descriptions.add(id);
+      field.setAttribute("aria-describedby", [...descriptions].join(" "));
+    }
+    if (error) {
+      error.textContent = message;
+      error.hidden = !message;
+    }
+    if (message) field.setAttribute("aria-invalid", "true");
+    else field.removeAttribute("aria-invalid");
+  }
+
+  function validateFields(root, revealField) {
+    let firstInvalid = null;
+    $$("input, select, textarea", root).forEach((field) => {
+      const message = fieldErrorMessage(field);
+      setFieldError(field, message);
+      if (message && !firstInvalid) firstInvalid = field;
+    });
+    if (!firstInvalid) return true;
+    if (revealField) revealField(firstInvalid);
+    firstInvalid.focus();
+    firstInvalid.scrollIntoView({ block: "center", behavior: "smooth" });
+    return false;
+  }
+
+  function setupEnglishValidation() {
+    $$("form").forEach((form) => {
+      form.noValidate = true;
+      form.addEventListener("invalid", (event) => event.preventDefault(), true);
+      form.addEventListener("input", () => {
+        const previousSuccess = $(".form-status.success", form);
+        if (previousSuccess) {
+          previousSuccess.className = "form-status";
+          previousSuccess.textContent = "";
+        }
+      });
+      $$("input, select, textarea", form).forEach((field) => {
+        const refresh = () => {
+          if (field.hasAttribute("aria-invalid")) setFieldError(field, fieldErrorMessage(field));
+        };
+        field.addEventListener("input", refresh);
+        field.addEventListener("change", refresh);
+      });
+      form.addEventListener("reset", () => {
+        $$("input, select, textarea", form).forEach((field) => setFieldError(field, ""));
+      });
+    });
+  }
+
+  function showRequestSuccess(status) {
+    status.className = "form-status success";
+    status.textContent = "Thank you! Your request has been sent. Please expect a call from the dealer shortly.";
+    status.lang = "en";
+    status.tabIndex = -1;
+    status.focus({ preventScroll: true });
+    status.scrollIntoView({ block: "center", behavior: "smooth" });
+  }
+
 
   function setupFlexiblePhoneInputs() {
     $$("input[type='tel']").forEach((input, index) => {
@@ -347,11 +440,7 @@
 
   function validateStep(number) {
     const step = $(`.form-step[data-step='${number}']`);
-    return $$('input, select, textarea', step).every((field) => {
-      if (field.type === "tel") validatePhoneInput(field);
-      if (!field.checkValidity()) { field.reportValidity(); return false; }
-      return true;
-    });
+    return validateFields(step);
   }
 
   function startRequest(id = activeVehicle && activeVehicle.id, type = "") {
@@ -369,7 +458,11 @@
     showStep(directVehicleRequest ? 2 : 1);
     if (window.fbq) window.fbq("trackCustom", "LeadFormOpen", { content_name: vehicle.title, content_ids: [vehicle.id], vehicle_stock: vehicle.stock || "", request_type: type || "Availability and details" });
     $("#request").scrollIntoView({ behavior: "smooth", block: "start" });
-    setTimeout(() => (directVehicleRequest ? $("#request-form input[name='firstName']") : $("#vehicle-select")).focus(), 450);
+    setTimeout(() => {
+      const field = directVehicleRequest ? $("#request-form input[name='firstName']") : $("#vehicle-select");
+      field.scrollIntoView({ block: "center", behavior: "auto" });
+      field.focus({ preventScroll: true });
+    }, 450);
   }
 
   function openChat() {
@@ -426,7 +519,7 @@
     return body;
   }
 
-  async function deliver(payload, status, successText) {
+  async function deliver(payload, status) {
     status.className = "form-status";
     const deliveryKey = JSON.stringify([payload.type, payload.phone, payload.email, payload.vehicleSlug, payload.requestType, payload.message]);
     if (deliveryKey === lastDeliveryKey && Date.now() - lastDeliveryAt < 5000) {
@@ -445,14 +538,14 @@
       return false;
     }
     try {
-      const body = await postLeadToRouter(payload);
-      status.classList.add("success"); status.textContent = body.message || successText;
+      await postLeadToRouter(payload);
+      showRequestSuccess(status);
       trackLead(payload);
       return true;
     } catch (error) {
       lastDeliveryKey = "";
       lastDeliveryAt = 0;
-      status.classList.add("error"); status.textContent = `${error.message} Please call ${callLines}.`; return false;
+      status.classList.add("error"); status.textContent = `We could not send your request. Please try again or call ${callLines}.`; return false;
     }
   }
 
@@ -460,7 +553,10 @@
     event.preventDefault();
     const form = event.currentTarget;
     if (form.dataset.submitting === "true") return;
-    if (!validateStep(3)) return;
+    if (!validateFields(form, (field) => {
+      const step = field.closest(".form-step");
+      if (step) showStep(Number(step.dataset.step));
+    })) return;
     const data = new FormData(form);
     const vehicle = inventory.find((row) => row.id === data.get("vehicleSlug"));
     const payload = { type: "vehicle-request", leadId: newLeadId(), dealerId: config.dealerId, dealerName: config.brand, landingId: config.landingId, vehicleSlug: data.get("vehicleSlug"), vehicle: vehicle ? vehicle.title : "", vehicleStock: vehicle ? vehicle.stock : "", vehiclePrice: vehicle ? vehicle.price : null, requestType: data.get("requestType"), firstName: String(data.get("firstName") || "").trim(), lastName: String(data.get("lastName") || "").trim(), phone: String(data.get("phone") || "").trim(), email: String(data.get("email") || "").trim(), purchaseMethod: data.get("purchaseMethod"), deliveryNeeded: Boolean(data.get("deliveryNeeded")), contactConsent: Boolean(data.get("contactConsent")), pageUrl: location.href, attribution: getAttribution() };
@@ -468,7 +564,7 @@
     form.dataset.submitting = "true";
     submit.disabled = true;
     try {
-      const sent = await deliver(payload, $(".form-status", form), "Request received. Schindler Motors will use these details to follow up.");
+      const sent = await deliver(payload, $(".form-status", form));
       if (sent) form.reset();
     } finally {
       delete form.dataset.submitting;
@@ -480,7 +576,7 @@
     event.preventDefault();
     const form = event.currentTarget;
     if (form.dataset.submitting === "true") return;
-    if (!validatePhoneInput($("input[name='phone']", form), true) || !form.reportValidity()) return;
+    if (!validateFields(form)) return;
     const data = new FormData(form);
     const vehicle = inventory.find((row) => row.id === data.get("vehicleSlug"));
     const payload = { type: "chat-question", leadId: newLeadId(), dealerId: config.dealerId, dealerName: config.brand, landingId: config.landingId, vehicleSlug: data.get("vehicleSlug"), vehicle: vehicle ? vehicle.title : "", vehicleStock: vehicle ? vehicle.stock : "", name: String(data.get("name") || "").trim(), phone: String(data.get("phone") || "").trim(), email: String(data.get("email") || "").trim(), message: String(data.get("message") || "").trim(), contactConsent: Boolean(data.get("contactConsent")), pageUrl: location.href, attribution: getAttribution() };
@@ -488,7 +584,7 @@
     form.dataset.submitting = "true";
     submit.disabled = true;
     try {
-      const sent = await deliver(payload, $(".form-status", form), "Question received. The team will follow up using your number.");
+      const sent = await deliver(payload, $(".form-status", form));
       if (sent) form.reset();
     } finally {
       delete form.dataset.submitting;
@@ -498,6 +594,7 @@
 
   function init() {
     getAttribution(); setupSectionLinks(); loadMetaPixel(); populateSelect(); setupFlexiblePhoneInputs(); syncFeaturedContent(); applyCampaignVehicle(); setupCampaignLanding(); setupVehicleQuickRequest(); setupPhoneTracking(); render();
+    setupEnglishValidation();
     $$('[data-vehicle]').filter((button) => !button.closest("#inventory-list")).forEach((button) => button.addEventListener("click", () => openVehiclePage(button.dataset.vehicle)));
     $("#budget-filter").addEventListener("change", render);
     $("#reset-filter").addEventListener("click", () => { $("#budget-filter").value = "all"; render(); });
