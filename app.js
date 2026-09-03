@@ -170,9 +170,9 @@
       button.type = "button";
       button.className = "vehicle-lead-cta";
       button.innerHTML = bar.classList.contains("mobile-bar")
-        ? "<span>Request</span><small>details</small>"
-        : '<i data-lucide="clipboard-check" aria-hidden="true"></i><span>Request details</span>';
-      button.setAttribute("aria-label", `Request details about ${campaignVehicle.title}`);
+        ? "<span>Check</span><small>availability</small>"
+        : '<i data-lucide="clipboard-check" aria-hidden="true"></i><span>Check availability</span>';
+      button.setAttribute("aria-label", `Check availability of ${campaignVehicle.title}`);
       button.addEventListener("click", () => startRequest(campaignVehicle.id, "Availability and details"));
       bar.insertBefore(button, chatButton);
     });
@@ -209,8 +209,8 @@
     }
 
     replaceWithCallLink($("#hero-secondary-cta"), primaryPhone);
-    $$('[data-campaign-request="Availability and details"]').forEach(button => button.textContent = "Request details");
-    showStep(2);
+    $$('[data-campaign-request="Availability and details"]').forEach(button => button.textContent = "Check Availability");
+    configureDirectVehicleForm();
 
     const inventoryList = $("#inventory-list");
     if (inventoryList && !$(".inventory-all-link", inventoryList.parentElement)) {
@@ -219,6 +219,66 @@
       url.hash = "inventory";
       inventoryList.insertAdjacentHTML("afterend", `<a class="inventory-all-link" href="${url.href}">View all ${inventory.length} Schindler Motors cars</a>`);
     }
+  }
+
+  function setLabelText(label, text) {
+    if (!label) return;
+    const textNode = Array.from(label.childNodes).find((node) => node.nodeType === Node.TEXT_NODE);
+    if (textNode) textNode.textContent = text;
+  }
+
+  function configureDirectVehicleForm() {
+    if (!campaignVehicle) return;
+    const form = $("#request-form");
+    const proofCopy = $(".campaign-proof-copy");
+    const contactStep = $(".form-step[data-step='2']", form);
+    const purchaseStep = $(".form-step[data-step='3']", form);
+    if (!form || !proofCopy || !contactStep || !purchaseStep) return;
+
+    form.classList.add("compact-vehicle-form");
+    contactStep.querySelector("h3").textContent = "Get a call about this exact car.";
+
+    const firstName = $("input[name='firstName']", form);
+    const lastName = $("input[name='lastName']", form);
+    const email = $("input[name='email']", form);
+    setLabelText(firstName?.closest("label"), "Name");
+    firstName.autocomplete = "name";
+    if (lastName) {
+      lastName.required = false;
+      lastName.value = "";
+      lastName.closest("label").hidden = true;
+    }
+    if (email) {
+      email.required = true;
+      email.closest("label").hidden = false;
+    }
+
+    const undecided = $("input[name='purchaseMethod'][value='Undecided']", form);
+    if (undecided) undecided.checked = true;
+
+    const consent = $("label.consent", purchaseStep);
+    const privacy = $(".privacy-note", purchaseStep);
+    const status = $(".form-status", purchaseStep);
+    const fullSubmit = $("button[type='submit']", purchaseStep);
+    const actions = $(".step-actions", contactStep);
+    const next = $("[data-next='3']", contactStep);
+    if (consent) actions.before(consent);
+    if (privacy) actions.before(privacy);
+    if (next) {
+      next.type = "submit";
+      next.className = "submit-request quick-submit";
+      next.removeAttribute("data-next");
+      next.textContent = "Call me about this car";
+    }
+    if (status) actions.after(status);
+    if (fullSubmit) {
+      fullSubmit.type = "button";
+      fullSubmit.disabled = true;
+    }
+
+    const actionsBlock = $(".campaign-proof-actions", proofCopy);
+    (actionsBlock || proofCopy.lastElementChild).insertAdjacentElement("afterend", form);
+    showStep(2);
   }
 
   function setupPhoneTracking() {
@@ -335,12 +395,16 @@
     $("#campaign-proof-specs").innerHTML = [["Engine", vehicle.engine], ["Transmission", vehicle.transmission], ["Mileage", vehicle.mileage], ["Body", vehicle.body], ["Exterior", vehicle.exterior], ["Interior", vehicle.interior]].filter(([, value]) => value).map(([label, value]) => `<div><dt>${label}</dt><dd>${value}</dd></div>`).join("");
     $("#campaign-proof-photos").innerHTML = vehicle.images.map((src, index) => {
       const source = assetPath(src);
-      return `<img src="${source}" srcset="${responsiveSrcset(source)}" sizes="(max-width: 740px) calc(100vw - 28px), 50vw" alt="${vehicle.title}, listing photo ${index + 1} of ${vehicle.images.length}" width="1200" height="800" loading="lazy" decoding="async">`;
+      const image = `<img src="${source}" srcset="${responsiveSrcset(source)}" sizes="(max-width: 740px) calc(100vw - 28px), 50vw" alt="${vehicle.title}, listing photo ${index + 1} of ${vehicle.images.length}" width="1200" height="800" loading="lazy" decoding="async">`;
+      if (index !== 2) return image;
+      return `${image}<div class="gallery-conversion-cta"><div><strong>Want to see a specific detail?</strong><span>Request a personal walk-around video or ask about delivery before you travel.</span></div><button class="red-button" type="button" data-gallery-request>Ask about this car</button></div>`;
     }).join("");
+    const galleryRequest = $("[data-gallery-request]");
+    if (galleryRequest) galleryRequest.addEventListener("click", () => startRequest(vehicle.id, "Personal walk-around video"));
     $("[data-campaign-gallery]").textContent = `See All ${vehicle.images.length} Photos`;
     $(".hero .eyebrow").textContent = "THE EXACT VEHICLE FROM YOUR AD";
     $("#hero-headline").textContent = vehicle.title;
-    $("#hero-lede").textContent = "Interested in this car? Request details with your name, phone, and email — or call our sales team.";
+    $("#hero-lede").textContent = "Interested in this car? Leave your name, phone number, and email for a dealer callback — or call our sales team now.";
     $("#inventory-heading-title").textContent = "Three more classics, if you want to compare.";
     const proofSection = $("#campaign-proof");
     const requestSection = $("#request");
@@ -367,7 +431,7 @@
     $(".hero-gallery-button").textContent = `See all ${campaignVehicle.images.length} photos`;
     $("#vehicle-select").value = campaignVehicle.id;
     $("#request-title").textContent = `Ask about the ${campaignVehicle.title}.`;
-    $("#request-context").textContent = `${money.format(campaignVehicle.price)} asking price${campaignVehicle.stock ? ` · Stock ${campaignVehicle.stock}` : ""}. Leave your name, phone number, and email below. All three are required so our sales team can follow up about this car.`;
+    $("#request-context").textContent = `${money.format(campaignVehicle.price)} asking price${campaignVehicle.stock ? ` · Stock ${campaignVehicle.stock}` : ""}. Leave your name, phone number, and email for a dealer callback about this exact car.`;
     renderCampaignProof(campaignVehicle);
     updateVehicleMetadata(campaignVehicle);
     trackVehicleView(campaignVehicle);
@@ -452,12 +516,15 @@
     activeVehicle = vehicle;
     $("#vehicle-select").value = vehicle.id;
     $("#request-title").textContent = `Ask about the ${vehicle.title}.`;
-    $("#request-context").textContent = `${money.format(vehicle.price)} asking price${vehicle.stock ? ` · Stock ${vehicle.stock}` : ""}. Leave your name, phone number, and email below. All three are required so our sales team can follow up about this car.`;
-    if (type) $("select[name='requestType']").value = type;
     const directVehicleRequest = Boolean(campaignVehicle && vehicle.id === campaignVehicle.id);
+    $("#request-context").textContent = directVehicleRequest
+      ? `${money.format(vehicle.price)} asking price${vehicle.stock ? ` · Stock ${vehicle.stock}` : ""}. Leave your name, phone number, and email for a dealer callback about this exact car.`
+      : `${money.format(vehicle.price)} asking price${vehicle.stock ? ` · Stock ${vehicle.stock}` : ""}. Leave your contact details so our sales team can follow up about this car.`;
+    if (type) $("select[name='requestType']").value = type;
     showStep(directVehicleRequest ? 2 : 1);
     if (window.fbq) window.fbq("trackCustom", "LeadFormOpen", { content_name: vehicle.title, content_ids: [vehicle.id], vehicle_stock: vehicle.stock || "", request_type: type || "Availability and details" });
-    $("#request").scrollIntoView({ behavior: "smooth", block: "start" });
+    const requestTarget = directVehicleRequest ? $("#request-form") : $("#request");
+    requestTarget.scrollIntoView({ behavior: "smooth", block: "center" });
     setTimeout(() => {
       const field = directVehicleRequest ? $("#request-form input[name='firstName']") : $("#vehicle-select");
       field.scrollIntoView({ block: "center", behavior: "auto" });
